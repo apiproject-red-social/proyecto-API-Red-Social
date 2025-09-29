@@ -1,110 +1,188 @@
-# 🚀 API TS Red Social
+# 📌 README.md
 
-![Node.js](https://img.shields.io/badge/Node.js-ES2022-brightgreen)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue)
-![Express](https://img.shields.io/badge/Express-5.1.0-lightgrey)
-![Build](https://img.shields.io/github/actions/workflow/status/angeldev/api-ts-prueba-i/build.yml?branch=main)
-![Lint](https://img.shields.io/github/actions/workflow/status/angeldev/api-ts-prueba-i/lint.yml?branch=main)
-![Tests](https://img.shields.io/github/actions/workflow/status/angeldev/api-ts-prueba-i/test.yml?branch=main)
-![Coverage](https://img.shields.io/badge/Coverage-0%25-lightgrey)
-![Commitlint](https://img.shields.io/badge/Commitlint-Conventional-brightgreen)
+# 🚀 Simple Microblogging API (TypeScript + Express)
 
-API de prueba construida con **Node.js**, **Express 5**, **TypeScript** y un stack profesional.  
-Incluye manejo de errores centralizado, logging avanzado, documentación Swagger y setup para testing.
+A production-ready **REST API boilerplate** for building a simple microblogging / social network backend.  
+Built with **TypeScript**, **Express**, and following **clean, modular architecture** with strict coding standards.
 
 ---
 
-## 📂 Estructura del Proyecto
+## 🛠️ Tech Stack
 
+- **Runtime**: Node.js (ESM)
+- **Language**: TypeScript (strict mode)
+- **Framework**: Express.js (v5)
+- **Security**: Helmet, CORS
+- **Logging**: Winston (persistent) + Morgan (HTTP logging)
+- **Environment Management**: dotenv
+- **Documentation**: Swagger (OpenAPI 3)
+- **Linting/Formatting**: ESLint + Prettier + Husky + lint-staged
+- **Commits**: Conventional Commits + Commitlint
+- **Testing**:
+  - Unit: Jest
+  - Integration: Supertest
+  - Coverage: NYC
+- **Error Handling**: Centralized with `AppError` + global `errorHandler`
+
+---
+
+## 📂 Project Structure
+
+```
+
+.
+├── docker-compose.yml
+├── package.json
+├── tsconfig.json
+├── .editorconfig
+├── .prettierignore
+├── commitlint.config.cjs
+├── jest.config.js
 ├── src
-│ ├── config/ # Configuración global (logger, env, etc.)
-│ ├── docs/ # Documentación Swagger
-│ ├── middlewares/ # Middlewares (errorHandler, notFound, morganLogger)
-│ ├── routes/ # Rutas (ej: health check)
-│ ├── utils/ # Utilidades (AppError, helpers)
-│ ├── types/ # Tipados adicionales
-│ ├── api.ts # Configuración de Express
-│ └── server.ts # Entry point del servidor
-├── tests/ # Tests (Jest + Supertest + Chai + Mocha)
-├── dist/ # Código compilado (build)
+│   ├── api.ts            # Express app configuration
+│   ├── server.ts         # Server bootstrap (env, logger, process errors)
+│   ├── config/           # Logger, env config
+│   ├── controllers/      # Request handlers
+│   ├── middlewares/      # Error handling, logging, notFound
+│   ├── routes/           # API routes
+│   ├── schemas/          # Request validation (Zod/Yup - WIP)
+│   ├── services/         # Business logic
+│   ├── models/           # Data models (DB - WIP)
+│   ├── utils/            # AppError, helpers
+│   ├── docs/             # Swagger, ADRs
+│   └── types/            # Custom TS types
 
-
----
-
-## ⚙️ Tecnologías y Librerías Clave
-
-- **Runtime**: Node.js (ESM con [`tsx`](https://github.com/esbuild-kit/tsx))  
-- **Framework**: Express 5  
-- **Lenguaje**: TypeScript  
-- **Seguridad**: Helmet, CORS  
-- **Logging**: Winston, Morgan  
-- **Documentación**: Swagger (`swagger-jsdoc`, `swagger-ui-express`)  
-- **Testing**: Jest, Supertest, Mocha, Chai, NYC  
-- **Estilo y Git**: ESLint, Prettier, Husky, Commitlint
+````
 
 ---
 
-## 🚦 Scripts Disponibles
+## ⚙️ Setup
 
-| Comando                | Descripción                                   |
-|-------------------------|-----------------------------------------------|
-| `npm run dev`           | Levanta el servidor en modo desarrollo (tsx) |
-| `npm run build`         | Compila TypeScript a JavaScript (dist)       |
-| `npm start`             | Corre la versión compilada (producción)      |
-| `npm run lint`          | Corre ESLint sobre el código                 |
-| `npm run format`        | Formatea con Prettier                        |
-| `npm test`              | Corre los tests                              |
+### 1. Clone repository
+```bash
+git clone https://github.com/proyecto-API-Red-Social
+cd api-ts-prueba-i
+````
+
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Setup environment variables
+
+Copy `.env.example` to your desired environment:
+
+```bash
+cp .env.example .env.development
+```
+
+Edit values as needed:
+
+```env
+NODE_ENV=development
+PORT=3000
+MONGO_URI=mongodb://localhost:27017/dev_db
+JWT_SECRET=devsecret123
+```
+
+### 4. Run in development
+
+```bash
+npm run dev
+```
+
+Runs with **tsx** (modern replacement for ts-node-dev).
+Server available at: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🧰 Manejo de Errores
+## 📖 API Documentation
 
-- `AppError`: clase personalizada para errores operacionales.  
-- `errorHandler`: middleware global que distingue entre **desarrollo** y **producción**.  
-- Handlers de proceso (`uncaughtException`, `unhandledRejection`) para evitar caídas inesperadas.
+* Swagger docs available at: [http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+* Current endpoints:
 
----
-
-## 📖 Documentación Swagger
-
-Swagger interactivo disponible en:
-
+  * `GET /` → Health check
+  * More coming soon...
 
 ---
 
 ## 🧪 Testing
 
-- Unit tests: Jest  
-- Integration tests: Supertest  
-- Assertions: Chai  
-- Cobertura: NYC  
+Run all tests:
 
-
+```bash
 npm test
+```
+
+Run with coverage:
+
+```bash
+npm run test -- --coverage
+```
 
 ---
 
-## 🔮 Roadmap
+## 📝 Development Workflow
 
-* [ ] Autenticación y autorización (JWT)
-* [ ] CI/CD con GitHub Actions
-* [ ] Dockerización
-* [ ] Base de datos (MongoDB)
-* [ ] Tests E2E
-* [ ] Deploy en un PaaS (Render, Railway, Heroku, Vercel)
+This project follows **GitHub Flow**:
+
+1. Create a branch:
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+2. Make commits using **Conventional Commits**:
+
+   * `feat(auth): add login endpoint`
+   * `fix(routes): correct health route`
+   * `chore(deps): update express`
+3. Push your branch:
+
+   ```bash
+   git push origin feature/your-feature
+   ```
+4. Open a **Pull Request** → review → merge into `main`.
 
 ---
 
-## 👨‍💻 Contribución
+## 🔐 Commits & Changelog
 
-1. Haz fork del repositorio
-2. Crea tu rama (`git checkout -b feature/nueva-feature`)
-3. Commit siguiendo convención (`feat(core): descripción`)
-4. Push (`git push origin feature/nueva-feature`)
-5. Abre un Pull Request 🚀
+* Commits follow the **Conventional Commits** spec.
+* Releases and `CHANGELOG.md` are generated automatically with **standard-version**.
 
 ---
 
-## 📜 Licencia
+## 🏛️ Architecture Decisions
 
-[MIT](./LICENSE)
+Important technical decisions are recorded as **ADRs (Architecture Decision Records)** under:
+
+```
+/docs/adr/
+```
+
+Examples:
+
+* ADR-001: TypeScript + ESM over CommonJS
+* ADR-002: GitHub Flow branching strategy
+* ADR-003: Centralized error handling
+
+---
+
+## 📌 Next Steps (Roadmap)
+
+* [ ] Setup CI/CD (GitHub Actions)
+* [ ] Add database integration (MongoDB / Prisma)
+* [ ] Implement authentication (JWT)
+* [ ] Expand endpoints (posts, users, likes)
+* [ ] Add request validation (Zod)
+* [ ] Improve test coverage
+
+---
+
+## 📄 License
+
+MIT
+
+---
