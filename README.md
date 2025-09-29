@@ -53,7 +53,7 @@ Built with **TypeScript**, **Express**, and following **clean, modular architect
 │   │   └── adr/          # Architecture Decision Records
 │   └── types/            # Custom TS types
 
-````
+```
 
 ---
 
