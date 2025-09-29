@@ -1,0 +1,13 @@
+# Compiled output
+dist
+node_modules
+
+# Env files
+.env
+.env.local
+
+# Logs
+*.log
+
+# Other ignores
+coverage
