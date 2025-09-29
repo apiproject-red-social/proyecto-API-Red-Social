@@ -50,6 +50,7 @@ Built with **TypeScript**, **Express**, and following **clean, modular architect
 │   ├── models/           # Data models (DB - WIP)
 │   ├── utils/            # AppError, helpers
 │   ├── docs/             # Swagger, ADRs
+│   │   └── adr/          # Architecture Decision Records
 │   └── types/            # Custom TS types
 
 ````
@@ -60,7 +61,7 @@ Built with **TypeScript**, **Express**, and following **clean, modular architect
 
 ### 1. Clone repository
 ```bash
-git clone https://github.com/proyecto-API-Red-Social
+git clone https://github.com/<your-org>/api-ts-prueba-i
 cd api-ts-prueba-i
 ````
 
@@ -86,6 +87,8 @@ PORT=3000
 MONGO_URI=mongodb://localhost:27017/dev_db
 JWT_SECRET=devsecret123
 ```
+
+> ⚠️ **Do not commit `.env.*` files**. Only share `.env.example`.
 
 ### 4. Run in development
 
@@ -138,6 +141,7 @@ This project follows **GitHub Flow**:
    * `feat(auth): add login endpoint`
    * `fix(routes): correct health route`
    * `chore(deps): update express`
+   * `docs(ADR): add ADR-004 decision title`  ← ADRs follow same flow
 3. Push your branch:
 
    ```bash
@@ -154,19 +158,22 @@ This project follows **GitHub Flow**:
 
 ---
 
-## 🏛️ Architecture Decisions
+## 🏛️ Architecture Decisions (ADRs)
 
-Important technical decisions are recorded as **ADRs (Architecture Decision Records)** under:
+Important technical decisions are recorded as **ADRs** under:
 
 ```
-/docs/adr/
+src/docs/adr/
 ```
 
 Examples:
 
-* ADR-001: TypeScript + ESM over CommonJS
-* ADR-002: GitHub Flow branching strategy
-* ADR-003: Centralized error handling
+* ADR-001: Use TypeScript for type safety
+* ADR-002: Use ESM modules instead of CommonJS
+* ADR-003: Centralized error handling with AppError and middleware
+* ADR-004: GitHub Flow branching strategy
+
+> Each new architectural decision should follow the same **GitHub Flow + Conventional Commits** pattern.
 
 ---
 
@@ -178,11 +185,10 @@ Examples:
 * [ ] Expand endpoints (posts, users, likes)
 * [ ] Add request validation (Zod)
 * [ ] Improve test coverage
+* [ ] Integrate ADR checks in CI/CD
 
 ---
 
 ## 📄 License
 
 MIT
-
----
