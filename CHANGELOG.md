@@ -8,7 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ## [1.0.0] - 2025-09-29
+
 ### Added
+
 - Initial project setup with TypeScript, Express, and ESM (`tsx` runtime).
 - Global error handling with `AppError` and `errorHandler`.
 - Logging with Winston and request logging middleware.
