@@ -213,6 +213,15 @@ Conventional commits	Commitlint + Husky	Commit validation
     featuring logging, error handling, testing, and CI/CD integration —
     ideal for showcasing modern backend engineering practices in a junior developer portfolio.
 
+## 🔒 Security Notes
+
+- **Reported Vulnerability**: `lodash.template` (high severity) via `gulp-header`
+- **Description**: This is a command injection vulnerability in a development dependency (`gulp-header`). It does **not** affect production runtime or API endpoints.
+- **Mitigation**:
+  - Monitor future releases of `gulp-header` and `lodash.template`.
+  - Apply `npm audit fix` periodically.
+- **Current Status**: No action needed for production; logged for awareness and future resolution.
+
 📄 License
 
 Licensed under the MIT License.
