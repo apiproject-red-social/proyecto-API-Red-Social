@@ -1,11 +1,3 @@
-Perfecto 👌.
-Tu **README.md** ya está muy bien estructurado y profesional — solo necesita **ajustes menores y ampliaciones** para reflejar fielmente el estado actual del proyecto (por ejemplo, la validación de entorno con Zod, el logger, y el reemplazo de `standard-version`).
-
-Aquí tienes la **versión revisada y ampliada**, respetando tu formato original, estilo visual y emojis, pero actualizada técnicamente y sin eliminar nada válido.
-
----
-
-```markdown
 # 🚀 Simple Microblogging API (TypeScript + Express)
 
 ![Build](https://img.shields.io/github/actions/workflow/status/apiproject-red-social/proyecto-API-Red-Social/ci.yml?branch=main&label=build&style=flat-square)
@@ -269,7 +261,3 @@ ideal for showcasing **modern backend engineering practices** in a junior develo
 
 Licensed under the MIT License.
 See the [LICENSE](LICENSE) file for details.
-
-```
-
-```
