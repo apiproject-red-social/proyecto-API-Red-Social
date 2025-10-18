@@ -6,17 +6,48 @@
   "main": "dist/server.js",
   "scripts": {
     "prepare": "husky install",
-    "dev": "tsx watch src/server.ts",
+    "dev": "cross-env NODE_ENV=development tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/server.js",
+    "start": "cross-env NODE_ENV=production node dist/server.js",
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "coverage": "vitest run --coverage",
-    "release": "standard-version",
+    "test": "cross-env NODE_ENV=test vitest run",
+    "test:watch": "cross-env NODE_ENV=test vitest",
+    "coverage": "cross-env NODE_ENV=test vitest run --coverage",
+    "release": "commit-and-tag-version",
     "adr:new": "adr new",
     "adr:log": "adr-log -d docs/adr -i docs/adr/index.md"
+  },
+  "commit-and-tag-version": {
+    "skip": {
+      "changelog": false
+    },
+    "types": [
+      {
+        "type": "feat",
+        "section": "✨ Features"
+      },
+      {
+        "type": "fix",
+        "section": "🐛 Fixes"
+      },
+      {
+        "type": "chore",
+        "section": "🧹 Chores"
+      },
+      {
+        "type": "docs",
+        "section": "📝 Documentation"
+      },
+      {
+        "type": "refactor",
+        "section": "🔧 Refactors"
+      },
+      {
+        "type": "test",
+        "section": "✅ Tests"
+      }
+    ]
   },
   "keywords": [],
   "author": "",
@@ -27,9 +58,10 @@
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "morgan": "^1.10.1",
-    "swagger-jsdoc": "^6.2.8",
+    "swagger-jsdoc": "^3.7.0",
     "swagger-ui-express": "^5.0.1",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
@@ -48,17 +80,16 @@
     "adr-cli": "^1.2.3",
     "adr-log": "^2.2.0",
     "adrgen": "^2.0.1",
-    "chai": "^6.0.1",
+    "commit-and-tag-version": "^12.6.0",
+    "cross-env": "^10.1.0",
     "eslint": "^9.36.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.0",
     "lodash.template": "^4.5.0",
-    "mocha": "^11.7.2",
     "nyc": "^17.1.0",
     "prettier": "^3.6.2",
-    "standard-version": "^9.5.0",
     "supertest": "^7.1.4",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.20.6",

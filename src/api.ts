@@ -4,14 +4,15 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import { env } from './config/env.js';
 
 const app = express();
 
 // Middlewares
 app.use(helmet());
-app.use(cors());
+app.use(cors({ origin: env.CORS_ORIGIN }));
 app.use(express.json());
-app.use(morgan('dev'));
+app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 // Health check
 app.get('/', (_req, res) => {

@@ -1,3 +1,11 @@
+Perfecto 👌.
+Tu **README.md** ya está muy bien estructurado y profesional — solo necesita **ajustes menores y ampliaciones** para reflejar fielmente el estado actual del proyecto (por ejemplo, la validación de entorno con Zod, el logger, y el reemplazo de `standard-version`).
+
+Aquí tienes la **versión revisada y ampliada**, respetando tu formato original, estilo visual y emojis, pero actualizada técnicamente y sin eliminar nada válido.
+
+---
+
+```markdown
 # 🚀 Simple Microblogging API (TypeScript + Express)
 
 ![Build](https://img.shields.io/github/actions/workflow/status/apiproject-red-social/proyecto-API-Red-Social/ci.yml?branch=main&label=build&style=flat-square)
@@ -19,11 +27,11 @@
 - **Framework:** Express.js v5
 - **Security:** Helmet, CORS
 - **Logging:** Winston (persistent) + Morgan (HTTP requests)
-- **Environment Management:** dotenv
+- **Environment Management:** dotenv + Zod schema validation
 - **Documentation:** Swagger (OpenAPI 3)
 - **Error Handling:** Centralized via `AppError` + global `errorHandler`
 - **Linting & Formatting:** ESLint + Prettier + Husky + lint-staged
-- **Commits & Versioning:** Conventional Commits + Commitlint + standard-version
+- **Commits & Versioning:** Conventional Commits + Commitlint + commit-and-tag-version _(replaces deprecated standard-version)_
 - **Testing:**
   - Unit: Vitest
   - Integration: Supertest
@@ -32,6 +40,7 @@
 ---
 
 ## 📂 Project Structure
+```
 
 .
 ├── docker-compose.yml
@@ -44,17 +53,18 @@
 ├── src
 │ ├── api.ts # Express app configuration
 │ ├── server.ts # Server bootstrap (env, logger, process errors)
-│ ├── config/ # Logger, env, and app configuration
-│ ├── controllers/ # Route handlers (controllers)
-│ ├── middlewares/ # Error handling, notFound, logging
-│ ├── routes/ # API route definitions
-│ ├── schemas/ # Request validation (Zod - WIP)
-│ ├── services/ # Business logic and orchestration
-│ ├── models/ # Data models (DB integration - WIP)
+│ ├── config/
+│ │ ├── env.ts # Environment validation with Zod
+│ │ └── logger.ts # Winston logger setup
+│ ├── middlewares/
+│ │ ├── errorHandler.ts # Centralized error handling
+│ │ └── notFoundHandler.ts
 │ ├── utils/ # AppError, helpers, constants
-│ ├── docs/ # Swagger and ADRs
+│ ├── docs/
 │ │ └── adr/ # Architecture Decision Records
-│ └── types/ # Custom TypeScript definitions
+│ └── **tests**/ # Unit and integration tests
+
+````
 
 ---
 
@@ -65,166 +75,201 @@
 ```bash
 git clone https://github.com/apiproject-red-social/proyecto-API-Red-Social.git
 cd proyecto-API-Red-Social
+````
 
-2️⃣ Install dependencies
+### 2️⃣ Install dependencies
 
+```bash
 npm install
+```
 
-3️⃣ Configure environment variables
+### 3️⃣ Configure environment variables
 
 Copy the example environment file:
 
+```bash
 cp .env.example .env.development
+```
 
 Edit it to fit your setup:
 
+```bash
 NODE_ENV=development
 PORT=3000
+CORS_ORIGIN=http://localhost:5173
 MONGO_URI=mongodb://localhost:27017/dev_db
 JWT_SECRET=devsecret123
+REDIS_URL=redis://localhost:6379
+```
 
-    ⚠️ Never commit .env files!
-    Keep only .env.example in version control.
+⚠️ **Never commit `.env` files!**
+Keep only `.env.example` under version control.
 
-4️⃣ Run in development mode
+---
 
+### 4️⃣ Run in development mode
+
+```bash
 npm run dev
+```
 
-Runs with tsx (modern replacement for ts-node-dev).
-Server available at → http://localhost:3000
-📖 API Documentation
+Runs with **tsx** (modern replacement for ts-node-dev).
+Server available at → [http://localhost:3000](http://localhost:3000)
 
-    Swagger docs available at: http://localhost:3000/api-docs
+---
 
-    Current endpoints:
+## 📖 API Documentation
 
-        GET / → Health check
+Swagger docs available at:
+[http://localhost:3000/api-docs](http://localhost:3000/api-docs)
 
-    More endpoints (users, posts, auth) coming soon.
+**Current endpoints:**
 
-🧪 Testing
-Run all tests
+- `GET /` → Health check
 
+📌 _More endpoints (users, posts, auth) coming soon._
+
+---
+
+## 🧪 Testing
+
+Run all tests:
+
+```bash
 npm test
+```
 
-Run with coverage
+Run with coverage:
 
+```bash
 npm run coverage
+```
 
 This runs:
 
-    Unit tests (Vitest)
+- Unit tests (Vitest)
+- Integration tests (Supertest)
+- Coverage reports via c8
 
-    Integration tests (Supertest)
+---
 
-    Coverage reports via c8
+## 🧭 Development Workflow
 
-🧭 Development Workflow
+This project follows **GitHub Flow** and **Conventional Commits**.
 
-This project follows GitHub Flow and Conventional Commits.
 Example workflow:
 
-    Create a new branch:
-
+```bash
 git checkout -b feature/add-auth
+```
 
 Commit with proper conventions:
 
-    feat(auth): add JWT authentication
-
-    fix(routes): correct health check path
-
-    chore(logger): improve error logging
-
-    docs(adr): record ADR for error handling
+```
+feat(auth): add JWT authentication
+fix(routes): correct health check path
+chore(logger): improve error logging
+docs(adr): record ADR for error handling
+```
 
 Push and open a Pull Request:
 
-    git push origin feature/add-auth
+```bash
+git push origin feature/add-auth
+```
 
-    After review → merge into main.
+After review → merge into `main`.
 
-🔐 Commits & Changelog
+---
 
-    All commits follow the Conventional Commits specification.
+## 🔐 Commits & Changelog
 
-    Releases and changelogs are generated automatically via standard-version.
+- All commits follow the **Conventional Commits** specification.
+- Releases and changelogs are generated automatically via **commit-and-tag-version**.
 
-🏛️ Architecture Decisions (ADRs)
+---
+
+## 🏛️ Architecture Decisions (ADRs)
 
 All technical decisions are documented under:
 
+```
 src/docs/adr/
+```
 
 Examples:
 
-    ADR-001: Use TypeScript for type safety
+- ADR-001: Use TypeScript for type safety
+- ADR-002: Use ESM modules instead of CommonJS
+- ADR-003: Centralized error handling with AppError
+- ADR-004: Adopt GitHub Flow branching model
 
-    ADR-002: Use ESM modules instead of CommonJS
+Each ADR should be committed with a `docs(adr):` prefix and reviewed like code.
 
-    ADR-003: Centralized error handling with AppError
+---
 
-    ADR-004: Adopt GitHub Flow branching model
-
-Each ADR should be committed with a docs(adr): prefix and reviewed like code.
-🧱 Current Status
+## 🧱 Current Status
 
 ✅ Implemented:
 
-    TypeScript + Express base architecture
-
-    Centralized error handling (AppError, errorHandler)
-
-    Logging with Winston & Morgan
-
-    Code linting, formatting, and commit validation
-
-    Unit and integration testing setup
+- TypeScript + Express base architecture
+- Centralized error handling (AppError, errorHandler)
+- Logging with Winston & Morgan (file + console)
+- Environment validation with Zod
+- Code linting, formatting, and commit validation
+- Unit and integration testing setup
 
 🚧 Planned Next:
 
-    Database integration (MongoDB / Prisma)
+- Database integration (MongoDB / Prisma)
+- Authentication (JWT)
+- Request validation (Zod schemas for routes)
+- CI/CD (GitHub Actions + Codecov)
+- Load testing (k6)
+- Security scanning (OWASP ZAP)
+- ADR-based governance automation
 
-    Authentication (JWT)
+---
 
-    Request validation (Zod)
+## ⚙️ CI/CD (Preview)
 
-    CI/CD (GitHub Actions + Codecov)
+| Type                 | Tool               | Purpose                        |
+| -------------------- | ------------------ | ------------------------------ |
+| CI                   | GitHub Actions     | Build, test, lint, coverage    |
+| Coverage             | Codecov            | Track test coverage            |
+| Load testing         | k6                 | Performance and stress testing |
+| Security testing     | OWASP ZAP          | Basic vulnerability scanning   |
+| Lint & Style         | ESLint + Prettier  | Code quality checks            |
+| Conventional commits | Commitlint + Husky | Commit validation              |
 
-    Load testing (k6)
+---
 
-    Security scanning (OWASP ZAP)
+## 🧠 Summary
 
-    ADR-based governance automation
+A **clean, scalable and professional Express + TypeScript API boilerplate**,
+featuring logging, error handling, environment validation, testing, and CI/CD integration —
+ideal for showcasing **modern backend engineering practices** in a junior developer portfolio.
 
-⚙️ CI/CD (Preview)
-
-This project will integrate a full open-source CI/CD stack:
-Type	Tool	Purpose
-CI	GitHub Actions	Build, test, lint, coverage
-Coverage	Codecov	Track test coverage
-Load testing	k6	Performance and stress testing
-Security testing	OWASP ZAP	Basic vulnerability scanning
-Lint & Style	ESLint + Prettier	Code quality checks
-Conventional commits	Commitlint + Husky	Commit validation
-🧠 Summary
-
-    A clean, scalable and professional Express + TypeScript API boilerplate,
-    featuring logging, error handling, testing, and CI/CD integration —
-    ideal for showcasing modern backend engineering practices in a junior developer portfolio.
+---
 
 ## 🔒 Security Notes
 
-- **Reported Vulnerability**: `lodash.template` (high severity) via `gulp-header`
-- **Description**: This is a command injection vulnerability in a development dependency (`gulp-header`). It does **not** affect production runtime or API endpoints.
-- **Mitigation**:
+- **Reported Vulnerability:** `lodash.template` (high severity) via `gulp-header`
+- **Description:** Command injection vulnerability in a dev dependency (`gulp-header`).
+  It does **not** affect production runtime or API endpoints.
+- **Mitigation:**
   - Monitor future releases of `gulp-header` and `lodash.template`.
   - Apply `npm audit fix` periodically.
-- **Current Status**: No action needed for production; logged for awareness and future resolution.
 
-📄 License
+- **Current Status:** Logged for awareness; no production impact.
+
+---
+
+📄 **License**
 
 Licensed under the MIT License.
-See the LICENSE file for details.
+See the [LICENSE](LICENSE) file for details.
+
+```
 
 ```
