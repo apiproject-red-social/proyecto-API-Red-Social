@@ -31,6 +31,25 @@
 
 ---
 
+## 🧩 Technical Rationale
+
+Each technology in this boilerplate was deliberately chosen to balance **developer experience**, **maintainability**, and **production readiness**:
+
+- **TypeScript** → Ensures static typing, better IDE support, and early error detection for safer refactors.
+- **Express.js v5** → Mature, minimal, and flexible — perfect for building REST APIs without unnecessary overhead.
+- **ESM + tsx** → Embraces the modern JavaScript module standard; `tsx` enables fast TypeScript execution without separate builds.
+- **Zod** → Provides both runtime validation and static typing, unifying schema validation and type safety.
+- **Winston + Morgan** → Combines persistent structured logging (`Winston`) with clean HTTP request logs (`Morgan`).
+- **dotenv + Zod validation** → Safely manages environment variables across different environments (dev/test/prod).
+- **Vitest + Supertest + c8** → Modern testing stack ensuring high coverage and fast feedback loops.
+- **ESLint + Prettier + Husky + lint-staged** → Enforces consistent style and prevents bad commits before they hit the repo.
+- **Commitlint + commit-and-tag-version** → Enforces semantic commits and automates changelogs/releases.
+- **Swagger (OpenAPI)** → Standardized documentation for consumers and automated client generation.
+
+> 🎯 The goal is to provide a clean, educational yet production-ready structure — teaching **real-world backend standards** while remaining approachable for junior developers.
+
+---
+
 ## 📂 Project Structure
 ```
 
