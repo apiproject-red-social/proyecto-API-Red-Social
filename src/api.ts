@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { env } from './config/env.js';
+import healthRouter from './routes/health.js';
+import { setupSwagger } from './docs/swagger.js';
 
 const app = express();
 
@@ -15,12 +17,12 @@ app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 
 // Health check
-app.get('/', (_req, res) => {
-  res.status(200).json({ status: 'success', message: 'API is running 🚀' });
-});
+app.use('/api/v1', healthRouter);
 
 // Base API route (we will add routers later)
 app.use('/api/v1', express.Router());
+
+setupSwagger(app);
 
 // 404 handler
 app.use(notFoundHandler);
