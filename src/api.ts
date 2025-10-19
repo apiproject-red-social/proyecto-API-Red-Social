@@ -6,6 +6,7 @@ import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import { errorHandler } from './middlewares/errorHandler.js';
 import { env } from './config/env.js';
 import healthRouter from './routes/health.js';
+import { setupSwagger } from './docs/swagger.js';
 
 const app = express();
 
@@ -20,6 +21,8 @@ app.use('/api/v1', healthRouter);
 
 // Base API route (we will add routers later)
 app.use('/api/v1', express.Router());
+
+setupSwagger(app);
 
 // 404 handler
 app.use(notFoundHandler);
