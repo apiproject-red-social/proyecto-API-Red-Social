@@ -35,6 +35,12 @@ jobs:
 
       - name: 🧪 Run Vitest (unit + integration)
         run: npm run test -- --run --reporter=verbose
+        env:
+          NODE_ENV: test
+          PORT: 3000
+          CORS_ORIGIN: http://localhost:5173
+          MONGO_URI: mongodb://localhost:27017/test_db
+          JWT_SECRET: testsecret123
 
       - name: 📊 Generate coverage report
         run: npm run coverage
@@ -46,16 +52,14 @@ jobs:
           fail_ci_if_error: false
           verbose: true
 
-  # 🛡️ Security scan (temporarily disabled until Docker/Server ready)
+  # Optional security job (future-proof)
   security-scan:
-    if: false  # <–– disables job safely (will be re-enabled later)
     runs-on: ubuntu-latest
     steps:
       - name: 📦 Checkout code
         uses: actions/checkout@v4
 
-      # Placeholder: will run once we have Docker or deployable app
-      - name: 🧪 Run OWASP ZAP baseline scan (placeholder)
+      - name: 🧪 Run OWASP ZAP baseline scan (optional)
         uses: zaproxy/action-baseline@v0.9.0
         with:
           target: "http://localhost:3000"
