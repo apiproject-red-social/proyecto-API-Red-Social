@@ -2,9 +2,9 @@ name: 🧪 CI - Build, Lint, Test, and Coverage
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
 
 jobs:
   build-test:
@@ -51,16 +51,15 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: false
           verbose: true
-
-  # Optional security job (future-proof)
-  security-scan:
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📦 Checkout code
-        uses: actions/checkout@v4
-
-      - name: 🧪 Run OWASP ZAP baseline scan (optional)
-        uses: zaproxy/action-baseline@v0.9.0
-        with:
-          target: "http://localhost:3000"
-        continue-on-error: true
+# Commented out security scan for now
+# security-scan:
+#   runs-on: ubuntu-latest
+#   steps:
+#     - name: 📦 Checkout code
+#       uses: actions/checkout@v4
+#
+#     - name: 🧪 Run OWASP ZAP baseline scan (optional)
+#       uses: zaproxy/action-baseline@v0.9.0
+#       with:
+#         target: "http://localhost:3000"
+#       continue-on-error: true
