@@ -51,6 +51,7 @@ Each technology in this boilerplate was deliberately chosen to balance **develop
 ---
 
 ## 📂 Project Structure
+
 ```
 
 .
@@ -75,7 +76,7 @@ Each technology in this boilerplate was deliberately chosen to balance **develop
 │ │ └── adr/ # Architecture Decision Records
 │ └── **tests**/ # Unit and integration tests
 
-````
+```
 
 ---
 
@@ -86,7 +87,7 @@ Each technology in this boilerplate was deliberately chosen to balance **develop
 ```bash
 git clone https://github.com/apiproject-red-social/proyecto-API-Red-Social.git
 cd proyecto-API-Red-Social
-````
+```
 
 ### 2️⃣ Install dependencies
 
@@ -136,7 +137,11 @@ Swagger docs available at:
 
 **Current endpoints:**
 
-- `GET /` → Health check
+### 🩺 Health check
+
+- **Endpoint:** `/api/v1/health`
+- **Method:** `GET`
+- **Response:** `{ "status": "ok" }`
 
 📌 _More endpoints (users, posts, auth) coming soon._
 
