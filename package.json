@@ -9,14 +9,15 @@
     "dev": "cross-env NODE_ENV=development tsx watch src/server.ts",
     "build": "tsc",
     "start": "cross-env NODE_ENV=production node dist/server.js",
-    "lint": "eslint . --ext .ts",
+    "lint": "eslint src --ext .ts",
     "format": "prettier --write .",
-    "test": "cross-env NODE_ENV=test vitest run",
+    "test": "cross-env NODE_ENV=test vitest",
     "test:watch": "cross-env NODE_ENV=test vitest",
     "coverage": "cross-env NODE_ENV=test vitest run --coverage",
     "release": "commit-and-tag-version",
     "adr:new": "adr new",
-    "adr:log": "adr-log -d docs/adr -i docs/adr/index.md"
+    "adr:log": "adr-log -d docs/adr -i docs/adr/index.md",
+    "test:ci": "cross-env NODE_ENV=test vitest run --coverage"
   },
   "commit-and-tag-version": {
     "skip": {
