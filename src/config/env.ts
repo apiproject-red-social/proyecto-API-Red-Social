@@ -1,14 +1,27 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: `.env.${process.env.NODE_ENV || 'development'}` });
+dotenv.config({
+  path: `.env.${process.env.NODE_ENV || 'development'}`,
+});
 
 const envSchema = z.object({
+  // Entorno
   NODE_ENV: z.enum(['development', 'test', 'production']),
-  PORT: z.string().transform(Number),
+
+  // App
+  PORT: z.coerce.number().default(3000),
   CORS_ORIGIN: z.string(),
+
+  // Database
   MONGO_URI: z.string(),
-  JWT_SECRET: z.string(),
+
+  // JWT
+  JWT_ACCESS_SECRET: z.string(),
+  JWT_REFRESH_SECRET: z.string(),
+
+  // Redis (opcional, pero recomendable)
+  REDIS_URL: z.string().default('redis://127.0.0.1:6379'),
 });
 
 const parsed = envSchema.safeParse(process.env);
@@ -26,7 +39,7 @@ if (!parsed.success) {
   }
 }
 
-// ✅ Always return a valid object with the correct type
+// ✅ Exporta variables tipadas y validadas
 export const env: z.infer<typeof envSchema> = parsed.success
   ? parsed.data
   : (process.env as unknown as z.infer<typeof envSchema>);
