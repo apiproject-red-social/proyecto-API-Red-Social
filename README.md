@@ -80,113 +80,209 @@ Each technology in this boilerplate was deliberately chosen to balance **develop
 
 ---
 
-## ⚙️ Setup
+# ⚙️ Setup – Local Development, Test & Development
 
-### 1️⃣ Clone the repository
+## 1️⃣ Clonar el repositorio
+
+Clona el proyecto desde GitHub y entra en la carpeta del proyecto:
 
 ```bash
 git clone https://github.com/apiproject-red-social/proyecto-API-Red-Social.git
 cd proyecto-API-Red-Social
 ```
 
-### 2️⃣ Install dependencies
+---
+
+## 2️⃣ Instalar dependencias
+
+Instala todas las dependencias de Node.js necesarias:
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Configure environment variables
+> Esto instalará:
+>
+> * TypeScript, tsx, Express
+> * Prisma y cliente de PostgreSQL
+> * Redis client
+> * Vitest y Supertest para testing
+> * ESLint / Prettier para calidad de código
 
-Copy the example environment file:
+---
+
+## 3️⃣ Configurar variables de entorno
+
+Copiar el archivo de ejemplo:
 
 ```bash
 cp .env.example .env.development
+cp .env.example .env.test
 ```
 
-Edit it to fit your setup:
+### 🔹 Variables principales
 
-```bash
+Edita `.env.development` para desarrollo local:
+
+```env
 NODE_ENV=development
 PORT=3000
 CORS_ORIGIN=http://localhost:5173
 MONGO_URI=mongodb://localhost:27017/dev_db
-JWT_SECRET=devsecret123
-REDIS_URL=redis://localhost:6379
+JWT_ACCESS_SECRET=devsecret123
+JWT_REFRESH_SECRET=devsecret123
+REDIS_URL=redis://127.0.0.1:6379
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/microblog_dev?schema=public
 ```
 
-⚠️ **Never commit `.env` files!**
-Keep only `.env.example` under version control.
+Edita `.env.test` para ejecutar tests:
+
+```env
+NODE_ENV=test
+PORT=3001
+CORS_ORIGIN=http://localhost:5173
+MONGO_URI=mongodb://localhost:27017/test_db
+JWT_ACCESS_SECRET=testsecret
+JWT_REFRESH_SECRET=testsecret
+REDIS_URL=redis://127.0.0.1:6379
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/microblog_test?schema=public
+```
+
+> ⚠️ Nunca comitear `.env` reales. Solo mantener `.env.example` en el repositorio.
 
 ---
 
-### 4️⃣ Run in development mode
+## 4️⃣ Crear base de datos de desarrollo y test
+
+Asegúrate de que PostgreSQL esté corriendo y crea las bases de datos:
+
+```sql
+-- Para desarrollo
+CREATE DATABASE microblog_dev;
+
+-- Para tests
+CREATE DATABASE microblog_test;
+```
+
+> Alternativamente, puedes levantar PostgreSQL con Docker usando `docker-compose.yml`.
+
+---
+
+## 5️⃣ Ejecutar migraciones y generar Prisma Client
+
+Esto sincroniza tu esquema de Prisma con la base de datos:
+
+```bash
+# Migrar y crear Prisma Client en desarrollo
+npx prisma migrate dev --name init
+
+# Generar Prisma Client (si no lo hizo la migración)
+npx prisma generate
+```
+
+Para tests (opcional):
+
+```bash
+NODE_ENV=test npx prisma migrate deploy
+```
+
+---
+
+## 6️⃣ Levantar servidor en modo desarrollo
 
 ```bash
 npm run dev
 ```
 
-Runs with **tsx** (modern replacement for ts-node-dev).
-Server available at → [http://localhost:3000](http://localhost:3000)
+* El servidor estará disponible en: [http://localhost:3000](http://localhost:3000)
+* Utiliza **tsx** para compilar TypeScript al vuelo
+* Los cambios en código se reflejan automáticamente
 
 ---
 
-## 📖 API Documentation
+## 7️⃣ Acceder a Swagger / documentación de API
 
-Swagger docs available at:
-[http://localhost:3000/api-docs](http://localhost:3000/api-docs)
+Swagger está disponible en:
 
-**Current endpoints:**
-
-### 🩺 Health check
-
-- **Endpoint:** `/api/v1/health`
-- **Method:** `GET`
-- **Response:** `{ "status": "ok" }`
-
-📌 _More endpoints (users, posts, auth) coming soon._
-
----
-
-## 🧪 Testing
-
-Run all tests:
-
-```bash
-npm test
+```
+http://localhost:3000/api-docs
 ```
 
-Run with coverage:
+* Aquí se pueden ver todos los endpoints disponibles
+* Incluye **Users, Auth y Health**
+* Permite probar endpoints directamente desde el navegador
+
+---
+
+## 8️⃣ Ejecutar tests
+
+### 🔹 Tests unitarios e integración
+
+```bash
+# Ejecutar todos los tests
+NODE_ENV=test npx vitest run
+```
+
+* Los tests usarán `.env.test`
+* La base de datos de test (`microblog_test`) se limpia automáticamente antes y después de cada suite
+* Cobertura mínima académica incluida
+
+### 🔹 Reporte de cobertura
 
 ```bash
 npm run coverage
 ```
 
-This runs:
-
-- Unit tests (Vitest)
-- Integration tests (Supertest)
-- Coverage reports via c8
+* Genera reporte con **c8**
+* Ideal para cumplir con RFN-MAN-001 (cobertura > 80%)
 
 ---
 
-## 🧭 Development Workflow
+## 9️⃣ Desarrollo guiado / flujo académico
 
-This project follows **GitHub Flow** and **Conventional Commits**.
+Este proyecto sigue **GitHub Flow** y **Conventional Commits**.
 
-Example workflow:
+### 🔹 Flujo recomendado
+
+1. Crear rama para nueva funcionalidad:
 
 ```bash
-git checkout -b feature/add-auth
+git checkout -b feature/add-users
 ```
 
-Commit with proper conventions:
+2. Hacer cambios y commitear siguiendo Conventional Commits:
 
 ```
-feat(auth): add JWT authentication
-fix(routes): correct health check path
-chore(logger): improve error logging
-docs(adr): record ADR for error handling
+feat(users): add user registration endpoint
+fix(users): correct profile response
+chore(tests): add integration test for /users/me
+docs(adr): document choice of Prisma for DB
 ```
+
+3. Abrir **Pull Request** (no hacer merge directamente). Usar formato académico de PR:
+
+```markdown
+## ✨ Feature Summary
+_Example_: Adds `/users` endpoints with registration and profile
+
+## 🧩 Changes Made
+- Created new route /users
+- Added controller and schema validation
+- Added integration tests
+
+## ✅ Checklist
+- [ ] Code builds and lints without errors
+- [ ] Tests pass
+- [ ] Swagger / README updated
+
+## 🧪 How to Test
+1. Run dev server
+2. Test endpoints manually or run automated tests
+```
+
+4. Revisar, aprobar y mergear después de feedback
+
+---
 
 Push and open a Pull Request:
 
