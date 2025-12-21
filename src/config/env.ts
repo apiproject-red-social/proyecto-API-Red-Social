@@ -14,7 +14,7 @@ const envSchema = z.object({
   CORS_ORIGIN: z.string(),
 
   // Database
-  MONGO_URI: z.string(),
+  DATABASE_URL: z.string().url(),
 
   // JWT
   JWT_ACCESS_SECRET: z.string(),
@@ -39,7 +39,6 @@ if (!parsed.success) {
   }
 }
 
-// ✅ Exporta variables tipadas y validadas
 export const env: z.infer<typeof envSchema> = parsed.success
   ? parsed.data
   : (process.env as unknown as z.infer<typeof envSchema>);
