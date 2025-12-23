@@ -1,6 +1,7 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { JWT_CONFIG } from '../config/jwt.js';
+import AppError from './AppError.js';
 
 export interface JwtPayload {
   userId: string;
@@ -23,7 +24,13 @@ export const signRefreshToken = (payload: JwtPayload): string => {
 };
 
 export const verifyAccessToken = (token: string): JwtPayload => {
-  return jwt.verify(token, env.JWT_ACCESS_SECRET) as JwtPayload;
+  try {
+    const decoded = jwt.verify(token, env.JWT_ACCESS_SECRET);
+    if (typeof decoded === 'string') throw new Error();
+    return decoded as JwtPayload;
+  } catch (error) {
+    throw new AppError('Invalid or expired token ' + error, 401);
+  }
 };
 
 export const verifyRefreshToken = (token: string): JwtPayload => {

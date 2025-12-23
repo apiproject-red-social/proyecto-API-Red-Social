@@ -41,4 +41,12 @@ if (!parsed.success) {
 
 export const env: z.infer<typeof envSchema> = parsed.success
   ? parsed.data
-  : (process.env as unknown as z.infer<typeof envSchema>);
+  : ({
+      ...process.env,
+      // Provee valores mínimos para que los tests no crasheen por variables undefined
+      NODE_ENV: (process.env.NODE_ENV as any) || 'test',
+      JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET || 'test_secret_fallback',
+      JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'test_refresh_fallback',
+      DATABASE_URL: process.env.DATABASE_URL || '',
+      CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
+    } as any);
