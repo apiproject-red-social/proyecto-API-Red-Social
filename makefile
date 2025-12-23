@@ -5,7 +5,7 @@ PROJECT_NAME := microblog
 COMPOSE := docker compose
 
 # Default env files (can be overridden per target)
-ENV_DEV := .env
+ENV_DEV := .env.development
 ENV_TEST := .env.test
 
 # ======================================================
@@ -67,22 +67,27 @@ logs:
 	@$(COMPOSE) logs -f api
 
 # ======================================================
-# Prisma
+# Prisma (Dentro de Docker)
 # ======================================================
 .PHONY: prisma-generate
 prisma-generate:
-	@echo "▶ Generating Prisma client"
-	@npx prisma generate
+	@echo "▶ Generating Prisma client inside Docker"
+	@$(COMPOSE) exec api npx prisma generate
+
+.PHONY: db-push
+db-push:
+	@echo "▶ Sincronizando esquema en Docker (dev)"
+	@$(COMPOSE) exec api npm run db:push
 
 .PHONY: prisma-migrate
 prisma-migrate:
-	@echo "▶ Running Prisma migrations (dev)"
-	@NODE_ENV=development npx prisma migrate dev
+	@echo "▶ Running Prisma migrations inside Docker"
+	@$(COMPOSE) exec api npx prisma migrate dev --name init
 
 .PHONY: prisma-reset
 prisma-reset:
-	@echo "⚠ Resetting TEST database"
-	@NODE_ENV=test npx prisma migrate reset --force
+	@echo "⚠ Resetting TEST database (using test-docker flow)"
+	@$(COMPOSE) -f compose.test.yml up --build --abort-on-container-exit
 
 # ======================================================
 # Tests
