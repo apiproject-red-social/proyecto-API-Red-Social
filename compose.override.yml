@@ -9,6 +9,8 @@ services:
       - /app/node_modules
     environment:
       NODE_ENV: development
+    env_file:
+      - .env.development  
     depends_on:
       postgres:
         condition: service_healthy
