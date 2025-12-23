@@ -1,22 +1,47 @@
-# Usamos una imagen ligera de Node
-FROM node:20-alpine
+# ======================================================
+# Base image
+# ======================================================
+# Node 22, Alpine-based, stable and lightweight
+FROM node:22-alpine
 
-# Instalamos dependencias necesarias para algunas librerías de Node
-RUN apk add --no-cache libc6-compat
+# ======================================================
+# System dependencies
+# ======================================================
+# libc6-compat is required by some native Node/Prisma deps
+RUN apk add --no-cache libc6-compat openssl
 
+# ======================================================
+# App directory
+# ======================================================
 WORKDIR /app
 
-# Copiamos archivos de dependencias
-COPY package*.json ./
+# ======================================================
+# Dependency installation (cached)
+# ======================================================
+# Copy only dependency manifests first to leverage Docker cache
+COPY package.json package-lock.json* ./
 
-# Instalamos dependencias
+# Install dependencies (including devDependencies)
 RUN npm install
 
-# Copiamos el resto del código
+# ======================================================
+# Copy application source
+# ======================================================
 COPY . .
 
-# Exponemos el puerto de la API
+# ======================================================
+# Prisma
+# ======================================================
+# Generate Prisma Client during build to avoid runtime surprises
+# Safe with Prisma 6
+RUN npx prisma generate
+
+# ======================================================
+# App port
+# ======================================================
 EXPOSE 3000
 
-# El comando por defecto (será sobrescrito por el docker-compose en dev)
+# ======================================================
+# Default command (overridden in compose.override.yml)
+# ======================================================
 CMD ["npm", "run", "dev"]

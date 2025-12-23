@@ -10,6 +10,7 @@ import { setupSwagger } from './docs/swagger.js';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
+import postRoutes from './routes/post.routes.js';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(cookieParser());
 
 app.use('/auth', authRoutes);
+app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users', userRoutes);
 // Health check
 app.use('/api/v1', healthRouter);

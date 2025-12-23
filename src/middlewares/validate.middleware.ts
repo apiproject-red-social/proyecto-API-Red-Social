@@ -1,16 +1,20 @@
 import { Request, Response, NextFunction } from 'express';
-import { ZodSchema } from 'zod';
+import { ZodType } from 'zod';
+import AppError from '../utils/AppError.js';
 
 export const validate =
-  (schema: ZodSchema) => (req: Request, _res: Response, next: NextFunction) => {
+  (schema: ZodType<any>) => (req: Request, _res: Response, next: NextFunction) => {
     const result = schema.safeParse({
-      body: req.body,
-      params: req.params,
-      query: req.query,
+      body: req.body || {}, // Aseguramos objeto vacío si no hay body
+      params: req.params || {},
+      query: req.query || {},
     });
 
     if (!result.success) {
-      next(result.error);
+      // Usamos result.error.issues que es el estándar de Zod
+      const errorMessages = result.error.issues.map((issue) => issue.message).join(', ');
+      console.log(result.error);
+      next(new AppError(`Validation error: ${errorMessages}`, 400));
       return;
     }
 
