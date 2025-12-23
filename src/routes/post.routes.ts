@@ -4,6 +4,7 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { createPostSchema, postIdParamSchema } from '../schemas/post.schema.js';
 import commentRoutes from './comment.routes.js';
+import { handleToggleLike } from '../controllers/like.controller.js';
 
 const router = Router();
 
@@ -14,5 +15,6 @@ router.patch('/:id', authenticate, validate(createPostSchema), postController.up
 router.delete('/:id', authenticate, validate(postIdParamSchema), postController.deletePost);
 
 router.use('/:postId/comments', commentRoutes);
+router.post('/:postId/like', authenticate, handleToggleLike);
 
 export default router;
