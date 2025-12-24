@@ -15,16 +15,6 @@ let userId: string, token: string;
 
 describe('Post API', () => {
   beforeAll(async () => {
-    // 1. LIMPIEZA TOTAL: Borramos posts y luego el usuario para evitar conflictos
-    // Borramos por email Y por username para estar 100% seguros
-    await prisma.post.deleteMany({ where: { author: { email: testUser.email } } });
-    await prisma.user.deleteMany({
-      where: {
-        OR: [{ email: testUser.email }, { username: testUser.username }],
-      },
-    });
-
-    // 2. CREACIÓN: Ahora la DB está limpia para este usuario
     const user = await prisma.user.create({
       data: {
         username: testUser.username,

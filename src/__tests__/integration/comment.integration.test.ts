@@ -11,11 +11,6 @@ describe('Comment API', () => {
   let postByUser2Id: string;
 
   beforeAll(async () => {
-    // Limpieza
-    await prisma.comment.deleteMany();
-    await prisma.post.deleteMany();
-    await prisma.user.deleteMany();
-
     // Crear Usuario 1 (El que comenta)
     const user1 = await prisma.user.create({
       data: { username: 'comentador', email: 'user1@test.com', passwordHash: 'hash' },
