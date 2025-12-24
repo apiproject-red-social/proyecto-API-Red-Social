@@ -11,12 +11,6 @@ describe('Like API', () => {
   let token: string;
 
   beforeAll(async () => {
-    // Limpieza
-    await prisma.like.deleteMany({});
-    await prisma.post.deleteMany({});
-    await prisma.user.deleteMany({});
-
-    // Crear entorno
     const user = await prisma.user.create({
       data: { username: 'liker', email: 'liker@test.com', passwordHash: '123' },
     });

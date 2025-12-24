@@ -18,14 +18,6 @@ let token: string;
 
 describe('User API', () => {
   beforeAll(async () => {
-    // 1. Limpieza total por email Y username
-    await prisma.user.deleteMany({
-      where: {
-        OR: [{ email: testUser.email }, { username: testUser.username }],
-      },
-    });
-
-    // 2. Crear usuario base para los tests de GET
     const created = await prisma.user.create({
       data: {
         username: testUser.username,
