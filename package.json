@@ -20,7 +20,18 @@
     "test:ci": "cross-env NODE_ENV=test vitest run --poolOptions.threads.singleThread --coverage",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "db:reset": "npx prisma db push --force-reset && npx prisma db seed",
+    "dev:local": "npm run db:reset && npm run dev",
+    "docker:install": "docker compose exec api npm install",
+    "docker:seed": "docker compose exec api npx prisma db seed",
+    "docker:generate": "docker compose exec api npx prisma generate",
+    "docker:push": "docker compose exec api npx prisma db push",
+    "docker:reset": "docker compose exec api npx prisma db push --force-reset && npm run docker:seed",
+    "docker:logs": "docker compose logs -f api"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "commit-and-tag-version": {
     "skip": {
@@ -75,6 +86,7 @@
   "devDependencies": {
     "@commitlint/cli": "^20.0.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@faker-js/faker": "^10.1.0",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",

@@ -21,7 +21,7 @@ app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(cookieParser());
 
-app.use('/auth', authRoutes);
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users', userRoutes);
 // Health check

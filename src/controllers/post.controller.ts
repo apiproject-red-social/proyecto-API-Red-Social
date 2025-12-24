@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import * as postService from '../services/post.service.js';
-// import { createPostSchema } from '../schemas/post.schema.js';
 import AppError from '../utils/AppError.js';
 
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {

@@ -1,0 +1,82 @@
+@hostname = localhost
+@port = 3000
+@baseUrl = http://{{hostname}}:{{port}}/api/v1
+@contentType = application/json
+
+### 1. Health Check (Probar que la API respira)
+GET http://{{hostname}}:{{port}}/api/v1/health
+
+### 1.5 Registro de Usuario Nuevo (Para estar seguros)
+# @name register
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+    "username": "tester66",
+    "email": "test@test.com",
+    "password": "password123"
+}
+
+### 2. Obtener todos los Posts (Ver los datos del Seed)
+GET {{baseUrl}}/posts
+
+### 3. Login de usuario (Obtener Token)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+    "email": "test@test.com",
+    "password": "password123"
+}
+
+### Guardamos el token de la respuesta anterior
+@authToken = {{login.response.body.accessToken}}
+
+### 4. Crear un nuevo Post (Requiere Auth)
+POST {{baseUrl}}/posts
+Content-Type: {{contentType}}
+Authorization: Bearer {{authToken}}
+
+{
+    "content": "Este es un post de prueba desde el archivo .http 🚀"
+}
+
+### 5. Dar Like a un Post
+# Sustituye el ID por uno real que veas en el GET de posts
+POST {{baseUrl}}/posts/661ed54b-1505-42d2-82b8-86894130f7c3/like
+Authorization: Bearer {{authToken}}
+
+### 6. Obtener mis datos (Perfil)
+# Sirve para probar que el middleware 'authenticate' funciona
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{authToken}}
+
+### 7. Refrescar el Token
+# Esto probará si Redis y las Cookies están funcionando bien
+# @name refresh
+POST {{baseUrl}}/auth/refresh
+Content-Type: {{contentType}}
+
+### Actualizamos el token local con el nuevo que nos da el refresh
+@newToken = {{refresh.response.body.accessToken}}
+
+### 8. Crear un Comentario en un Post
+# Usamos el token refrescado para verificar que sigue teniendo permisos
+POST {{baseUrl}}/posts/661ed54b-1505-42d2-82b8-86894130f7c3/comments
+Content-Type: {{contentType}}
+Authorization: Bearer {{newToken}}
+
+{
+    "content": "¡Buen post! Probando comentarios desde REST Client 💬"
+}
+
+### 9. Logout
+# Esto debería borrar el token de Redis y limpiar las cookies
+POST {{baseUrl}}/auth/logout
+Content-Type: {{contentType}}
+
+### 10. Verificar que el Logout funcionó
+# Intentamos entrar a /me; debería dar 401 Unauthorized
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{newToken}}
