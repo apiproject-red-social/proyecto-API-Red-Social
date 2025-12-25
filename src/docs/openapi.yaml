@@ -1,0 +1,150 @@
+# src/docs/openapi.yaml
+tags:
+  - name: Auth
+  - name: Users
+  - name: Posts
+  - name: Comments
+  - name: Likes
+  - name: System
+
+x-common-responses:
+  BadRequest: &BadRequest
+    description: Error de validación o datos incorrectos
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/Error' }
+  Unauthorized: &Unauthorized
+    description: No autorizado
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/Error' }
+  NotFound: &NotFound
+    description: Recurso no encontrado
+    content:
+      application/json:
+        schema: { $ref: '#/components/schemas/Error' }
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Registro de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserRegister' }
+      responses:
+        201:
+          description: Usuario creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        400: *BadRequest
+
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Obtener feed
+      responses:
+        200:
+          description: Lista de publicaciones
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PostResponse' }
+    post:
+      tags: [Posts]
+      summary: Crear post
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/PostContent' }
+      responses:
+        201:
+          description: Post creado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PostResponse' }
+
+  /posts/{postId}/comments:
+    get:
+      tags: [Comments]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Lista de comentarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/CommentResponse' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # --- SCHEMAS DE ENTRADA (INPUTS) ---
+    UserRegister:
+      type: object
+      required: [username, email, password]
+      properties:
+        username: { type: string, example: "antonio_dev" }
+        email: { type: string, format: email, example: "antonio@example.com" }
+        password: { type: string, format: password, example: "secret123" }
+
+    PostContent:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, maxLength: 280, example: "Aprendiendo OpenAPI con Gemini!" }
+
+    CommentContent:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, maxLength: 500, example: "Gran post, muy útil." }
+
+    # --- SCHEMAS DE SALIDA (OUTPUTS/RESPONSES) ---
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        username: { type: string, example: "antonio_dev" }
+        email: { type: string, example: "antonio@example.com" }
+        createdAt: { type: string, format: date-time }
+
+    PostResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string }
+        authorId: { type: string, format: uuid }
+        likesCount: { type: integer, example: 10 }
+        createdAt: { type: string, format: date-time }
+
+    CommentResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        content: { type: string }
+        postId: { type: string, format: uuid }
+        authorId: { type: string, format: uuid }
+        createdAt: { type: string, format: date-time }
+
+    Error:
+      type: object
+      properties:
+        message: { type: string, example: "Token invalid or expired" }
+        code: { type: string, example: "UNAUTHORIZED" }
