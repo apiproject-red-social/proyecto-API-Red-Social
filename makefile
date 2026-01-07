@@ -106,3 +106,12 @@ test-docker:
 test-down:
 	@echo "▶ Stopping test Docker containers"
 	@$(COMPOSE) -f compose.test.yml down
+
+# ======================================================
+# ENTREGA TFG: Modo Evaluación
+# ======================================================
+.PHONY: demo
+demo:
+	@echo "▶ Preparando entorno de evaluación..."
+	@echo "▶ La aplicación estará lista en http://localhost:3000"
+	@docker compose -f compose.prod.yml up --build
