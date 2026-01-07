@@ -1,4 +1,9 @@
-# src/docs/openapi.yaml
+openapi: 3.0.0
+info:
+  title: API Red Social - TFG
+  version: 1.0.0
+  description: Documentación interactiva para el boilerplate de la Red Social.
+
 tags:
   - name: Auth
   - name: Users
@@ -42,6 +47,19 @@ paths:
               schema: { $ref: '#/components/schemas/UserResponse' }
         400: *BadRequest
 
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Obtener mi perfil
+      security: [{ bearerAuth: [] }]
+      responses:
+        200:
+          description: Datos del usuario autenticado
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserResponse' }
+        401: *Unauthorized
+
   /posts:
     get:
       tags: [Posts]
@@ -69,10 +87,33 @@ paths:
           content:
             application/json:
               schema: { $ref: '#/components/schemas/PostResponse' }
+        401: *Unauthorized
+
+  /posts/{postId}/likes:
+    post:
+      tags: [Likes]
+      summary: Dar/Quitar Like a un post
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        200:
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: 'Like toggled' }
+        404: *NotFound
 
   /posts/{postId}/comments:
     get:
       tags: [Comments]
+      summary: Obtener comentarios de un post
       parameters:
         - name: postId
           in: path
@@ -86,6 +127,7 @@ paths:
               schema:
                 type: array
                 items: { $ref: '#/components/schemas/CommentResponse' }
+        404: *NotFound
 
 components:
   securitySchemes:
@@ -95,34 +137,26 @@ components:
       bearerFormat: JWT
 
   schemas:
-    # --- SCHEMAS DE ENTRADA (INPUTS) ---
     UserRegister:
       type: object
       required: [username, email, password]
       properties:
-        username: { type: string, example: "antonio_dev" }
-        email: { type: string, format: email, example: "antonio@example.com" }
-        password: { type: string, format: password, example: "secret123" }
+        username: { type: string, example: 'antonio_dev' }
+        email: { type: string, format: email, example: 'antonio@example.com' }
+        password: { type: string, format: password, example: 'secret123' }
 
     PostContent:
       type: object
       required: [content]
       properties:
-        content: { type: string, maxLength: 280, example: "Aprendiendo OpenAPI con Gemini!" }
+        content: { type: string, maxLength: 280, example: 'Aprendiendo OpenAPI!' }
 
-    CommentContent:
-      type: object
-      required: [content]
-      properties:
-        content: { type: string, maxLength: 500, example: "Gran post, muy útil." }
-
-    # --- SCHEMAS DE SALIDA (OUTPUTS/RESPONSES) ---
     UserResponse:
       type: object
       properties:
-        id: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
-        username: { type: string, example: "antonio_dev" }
-        email: { type: string, example: "antonio@example.com" }
+        id: { type: string, format: uuid, example: '550e8400-e29b-41d4-a716-446655440000' }
+        username: { type: string, example: 'antonio_dev' }
+        email: { type: string, example: 'antonio@example.com' }
         createdAt: { type: string, format: date-time }
 
     PostResponse:
@@ -146,5 +180,5 @@ components:
     Error:
       type: object
       properties:
-        message: { type: string, example: "Token invalid or expired" }
-        code: { type: string, example: "UNAUTHORIZED" }
+        message: { type: string, example: 'Token invalid or expired' }
+        code: { type: string, example: 'UNAUTHORIZED' }

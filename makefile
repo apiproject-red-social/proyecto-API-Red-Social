@@ -28,6 +28,7 @@ help:
 	@echo ""
 	@echo "  make test              Run tests locally"
 	@echo "  make test-docker       Run tests inside Docker"
+	@echo "  make demo              Run app inside Docker"
 	@echo ""
 
 # ======================================================
@@ -107,8 +108,13 @@ test-down:
 	@echo "▶ Stopping test Docker containers"
 	@$(COMPOSE) -f compose.test.yml down
 
+.PHONY: test-coverage
+test-coverage:
+	@echo "▶ Running tests with coverage inside Docker"
+	@$(COMPOSE) -f compose.test.yml run --rm api-test npm run test:ci
+
 # ======================================================
-# ENTREGA TFG: Modo Evaluación
+# Producción: Modo Evaluación
 # ======================================================
 .PHONY: demo
 demo:
