@@ -15,12 +15,25 @@ import postRoutes from './routes/post.routes.js';
 const app = express();
 
 // Middlewares
-app.use(helmet());
+// app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", 'https://cdn.tailwindcss.com'],
+        styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+        imgSrc: ["'self'", 'data:', 'https://*'],
+        connectSrc: ["'self'", 'http://localhost:3000'], // Ajusta si usas otro puerto
+      },
+    },
+  }),
+);
 app.use(cors({ origin: env.CORS_ORIGIN }));
 app.use(express.json());
 app.use(morgan(env.NODE_ENV === 'development' ? 'dev' : 'combined'));
 app.use(cookieParser());
-
+app.use(express.static('public'));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users', userRoutes);

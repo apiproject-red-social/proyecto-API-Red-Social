@@ -19,12 +19,34 @@ export const getPostById = async (id: string) => {
   return post;
 };
 
+// export const getFeed = async (page = 1, pageSize = 10) => {
+//   return prisma.post.findMany({
+//     orderBy: { createdAt: 'desc' },
+//     skip: (page - 1) * pageSize,
+//     take: pageSize,
+//     include: { author: { select: { id: true, username: true } } },
+//   });
+// };
+
 export const getFeed = async (page = 1, pageSize = 10) => {
   return prisma.post.findMany({
     orderBy: { createdAt: 'desc' },
     skip: (page - 1) * pageSize,
     take: pageSize,
-    include: { author: { select: { id: true, username: true } } },
+    include: {
+      author: {
+        select: { id: true, username: true },
+      },
+      comments: {
+        include: {
+          author: { select: { username: true } },
+        },
+        orderBy: { createdAt: 'asc' },
+      },
+      _count: {
+        select: { likes: true },
+      },
+    },
   });
 };
 
