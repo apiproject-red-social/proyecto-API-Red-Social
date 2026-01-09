@@ -15,7 +15,6 @@ services:
       - '3000:3000'
     environment:
       NODE_ENV: production
-      # Estas variables se pueden definir aquí directamente para facilitar la vida al profesor
       PORT: 3000
       CORS_ORIGIN: "*"
       DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/microblog_prod"
