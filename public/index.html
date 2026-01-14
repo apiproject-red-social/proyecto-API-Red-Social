@@ -1,248 +1,278 @@
 <!doctype html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Social API - Demo TFG</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-      .hidden { display: none !important; }
-      /* Animación suave para cuando carga el feed */
-      #posts-container { transition: all 0.3s ease; }
-    </style>
-  </head>
-  <body class="bg-slate-100 min-h-screen text-slate-800">
-    <nav class="bg-indigo-600 p-4 text-white shadow-lg mb-8">
-      <div class="max-w-4xl mx-auto flex justify-between items-center">
-        <h1 class="text-xl font-bold tracking-tight text-white">🚀 SocialBoilerplate</h1>
-        <div id="user-info" class="hidden text-sm flex items-center gap-4">
-          <span id="username-display" class="font-semibold bg-indigo-500 px-3 py-1 rounded-full text-white text-xs"></span>
-          <button id="btn-logout" class="bg-white text-indigo-600 hover:bg-slate-100 px-3 py-1 rounded font-bold transition">
-            Salir
-          </button>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social API - Demo Sobrio con Mensajes</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #f5f5f5; color: #111; }
+    .hidden { display: none !important; }
+    #posts-container, #messages-container { transition: all 0.3s ease; }
+    .active-link { font-weight: bold; text-decoration: underline; }
+    .message { padding: 4px 8px; border-radius: 6px; max-width: 70%; margin-bottom: 4px; }
+    .from-me { background-color: #111; color: #fff; margin-left: auto; }
+    .from-other { background-color: #ddd; color: #111; margin-right: auto; }
+  </style>
+</head>
+<body class="min-h-screen text-gray-900">
+  <nav class="bg-gray-900 p-4 text-white shadow-md mb-6 flex justify-between items-center">
+    <h1 class="text-xl font-bold tracking-tight">🚀 SocialSobrio</h1>
+    <div id="user-info" class="hidden flex items-center gap-4 text-sm">
+      <span id="username-display" class="px-3 py-1 rounded-full bg-gray-700"></span>
+      <button id="btn-logout" class="bg-white text-gray-900 px-3 py-1 rounded font-bold hover:bg-gray-200">Salir</button>
+    </div>
+  </nav>
+
+  <main class="max-w-3xl mx-auto px-4">
+    <!-- AUTH -->
+    <div id="auth-card" class="bg-white p-8 rounded-xl shadow-md border border-gray-200">
+      <h2 class="text-2xl font-bold mb-6 text-center text-gray-900">Bienvenido</h2>
+      <div class="space-y-4">
+        <input type="email" id="email" placeholder="Email" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-gray-500">
+        <input type="password" id="password" placeholder="Contraseña" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-gray-500">
+        <div class="flex gap-4 pt-2">
+          <button id="btn-login" class="flex-1 bg-gray-900 hover:bg-gray-800 text-white font-bold py-3 rounded-lg transition">Entrar</button>
+          <button id="btn-register" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-900 font-bold py-3 rounded-lg transition">Registrarse</button>
         </div>
       </div>
-    </nav>
+    </div>
 
-    <main class="max-w-2xl mx-auto px-4">
-      <div id="auth-card" class="bg-white p-8 rounded-xl shadow-md border border-slate-200">
-        <h2 class="text-2xl font-bold mb-6 text-center text-indigo-900">Bienvenido</h2>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Email</label>
-            <input type="email" id="email" placeholder="ej: antonio@dev.com" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold text-slate-500 uppercase mb-1">Contraseña</label>
-            <input type="password" id="password" placeholder="••••••••" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-          </div>
-          <div class="flex gap-4 pt-2">
-            <button id="btn-login" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition shadow-md text-sm">Entrar</button>
-            <button id="btn-register" class="flex-1 bg-slate-100 hover:bg-slate-200 text-indigo-600 font-bold py-3 rounded-lg border border-indigo-200 transition text-sm">Registrarse</button>
-          </div>
+    <!-- APP -->
+    <div id="app-section" class="hidden space-y-6">
+      <div class="flex gap-4 mb-4">
+        <button id="link-feed" class="active-link">Feed</button>
+        <button id="link-profile">Mi Perfil</button>
+        <button id="link-messages">Mensajes</button>
+      </div>
+
+      <!-- Feed -->
+      <div id="feed-section" class="space-y-6">
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-sm font-bold text-gray-500 uppercase mb-3">Nueva publicación</h3>
+          <textarea id="post-content" rows="3" placeholder="¿Qué quieres compartir hoy?" class="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-gray-400 mb-2"></textarea>
+          <button id="btn-publish" class="w-full bg-gray-900 hover:bg-gray-800 text-white font-bold py-2 rounded-lg">Publicar</button>
+        </div>
+        <div id="posts-container" class="space-y-4"></div>
+        <div class="flex justify-between mt-4">
+          <button id="prev-page" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Anterior</button>
+          <button id="next-page" class="px-3 py-1 bg-gray-300 rounded hover:bg-gray-400">Siguiente</button>
         </div>
       </div>
 
-      <div id="feed-section" class="hidden space-y-6">
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
-          <h3 class="text-sm font-bold text-slate-400 uppercase mb-3">Nueva publicación</h3>
-          <textarea id="post-content" rows="3" placeholder="¿Qué quieres compartir hoy?" class="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-indigo-400 outline-none mb-2"></textarea>
-          <button id="btn-publish" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded-lg transition shadow-sm">Publicar Mensaje</button>
-        </div>
-        <div id="posts-container" class="space-y-4 pb-12"></div>
+      <!-- Perfil -->
+      <div id="profile-section" class="hidden bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+        <h2 class="text-lg font-bold mb-2">Mi Perfil</h2>
+        <div id="profile-content"></div>
       </div>
-    </main>
 
-    <script>
-      (function () {
-        const API_URL = 'http://localhost:3000';
+      <!-- Messages -->
+      <div id="messages-section" class="hidden bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex gap-4">
+        <div class="w-1/3 border-r border-gray-200 pr-2">
+          <h3 class="font-bold mb-2">Usuarios</h3>
+          <div id="users-list" class="space-y-2 max-h-[400px] overflow-y-auto"></div>
+        </div>
+        <div class="w-2/3 flex flex-col">
+          <h3 class="font-bold mb-2">Conversación</h3>
+          <div id="messages-container" class="flex-1 overflow-y-auto mb-2"></div>
+          <div class="flex gap-2">
+            <input id="message-input" type="text" placeholder="Escribe un mensaje..." class="flex-1 border rounded px-2 py-1 focus:ring-1 focus:ring-gray-500">
+            <button id="btn-send-message" class="bg-gray-900 text-white px-3 py-1 rounded hover:bg-gray-800">Enviar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
 
-        async function auth(type) {
-          const email = document.getElementById('email').value;
-          const password = document.getElementById('password').value;
-          const endpoint = type === 'login' ? '/api/v1/auth/login' : '/api/v1/auth/register';
+<script>
+(async function(){
+  const API_URL = 'http://localhost:3000/api/v1';
+  let currentPage = 1;
+  let currentChatUser = null;
+  let pollInterval = null;
 
-          if (!email || !password) return alert('Rellena todos los campos');
+  function handleUnauthorized(){
+    localStorage.clear();
+    alert('Tu sesión ha expirado.');
+    location.reload();
+  }
 
-          try {
-            const res = await fetch(`${API_URL}${endpoint}`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ email, password, username: email.split('@')[0] }),
-              credentials: 'include',
-            });
-
-            const data = await res.json();
-            if (res.ok && (type === 'login' || data.message === 'Logged in')) {
-              localStorage.setItem('isLoggedIn', 'true');
-              localStorage.setItem('username', data.user?.username || email.split('@')[0]);
-              checkStatus();
-            } else if (type === 'register' && res.status === 201) {
-              alert('¡Cuenta creada! Ya puedes entrar.');
-            } else {
-              alert('Error: ' + (data.message || 'Error en la autenticación'));
-            }
-          } catch (err) {
-            alert('Error de conexión con el servidor');
-          }
+  async function auth(type){
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const endpoint = type==='login'?'/auth/login':'/auth/register';
+    if(!email||!password) return alert('Rellena todos los campos');
+    try{
+      const res = await fetch(API_URL+endpoint,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({email,password,username:email.split('@')[0]}),
+        credentials:'include'
+      });
+      const data = await res.json();
+      if(res.ok){
+        if(type==='login'){
+          localStorage.setItem('isLoggedIn','true');
+          localStorage.setItem('username',data.user?.username||email.split('@')[0]);
+          showApp();
+        }else{
+          alert('¡Cuenta creada! Ahora entra.');
+          document.getElementById('password').value='';
         }
+      }else alert('Error: '+(data.message||'Error en la autenticación'));
+    }catch(e){ alert('Error de conexión'); console.error(e);}
+  }
 
-        async function handleLike(postId) {
-          try {
-            const res = await fetch(`${API_URL}/api/v1/posts/${postId}/like`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({}), // Enviamos body vacío para satisfacer middlewares de validación
-              credentials: 'include',
-            });
-            if (res.ok) {
-                await loadPosts(); // Recargamos para ver el +1
-            } else if (res.status === 401) {
-                alert("Sesión expirada. Identifícate de nuevo.");
-                logout();
-            }
-          } catch (e) {
-            console.error('Error like:', e);
-          }
-        }
+  function logout(){
+    localStorage.clear();
+    location.reload();
+  }
 
-        async function handleComment(postId) {
-          const input = document.getElementById(`comment-in-${postId}`);
-          const content = input.value;
-          if (!content) return;
+  function showApp(){
+    document.getElementById('auth-card').classList.add('hidden');
+    document.getElementById('app-section').classList.remove('hidden');
+    document.getElementById('user-info').classList.remove('hidden');
+    document.getElementById('username-display').innerText = localStorage.getItem('username');
+    loadPosts();
+    loadProfile();
+    loadUsersList();
+  }
 
-          try {
-            const res = await fetch(`${API_URL}/api/v1/posts/${postId}/comments`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ content }),
-              credentials: 'include',
-            });
-            if (res.ok) {
-              input.value = '';
-              await loadPosts();
-            }
-          } catch (e) {
-            console.error('Error comentando:', e);
-          }
-        }
+  // --- POSTS ---
+  async function loadPosts(page=currentPage){
+    try{
+      const res = await fetch(`${API_URL}/posts?page=${page}`,{credentials:'include'});
+      if(res.status===401) return handleUnauthorized();
+      const posts = await res.json();
+      const container = document.getElementById('posts-container');
+      if(!posts || posts.length===0){ container.innerHTML='<p class="text-center text-gray-400 py-10">No hay mensajes aún...</p>'; return;}
+      container.innerHTML = posts.map(p=>{
+        const username = p.author?.username || `User_${p.authorId.slice(0,4)}`;
+        const likesCount = p._count?.likes??0;
+        const comments = p.comments||[];
+        return `
+        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center text-xs font-bold uppercase">${username.slice(0,2)}</div>
+            <span class="font-bold text-gray-700 text-sm">@${username}</span>
+          </div>
+          <p class="text-gray-600 cursor-pointer post-title" data-id="${p.id}">${p.content}</p>
+        </div>`;
+      }).join('');
+    }catch(e){ console.error('Error cargando posts:',e);}
+  }
 
-        async function loadPosts() {
-          try {
-            const res = await fetch(`${API_URL}/api/v1/posts`, { credentials: 'include' });
-            const posts = await res.json();
-            const container = document.getElementById('posts-container');
+  async function createPost(){
+    const content = document.getElementById('post-content').value;
+    if(!content) return;
+    try{
+      const res = await fetch(`${API_URL}/posts`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({content}),
+        credentials:'include'
+      });
+      if(res.status===401) return handleUnauthorized();
+      if(res.ok){ document.getElementById('post-content').value=''; loadPosts();}
+    }catch(e){ console.error('Error publicando:',e);}
+  }
 
-            if (!posts || posts.length === 0) {
-              container.innerHTML = '<p class="text-center text-slate-400 py-10">No hay mensajes aún...</p>';
-              return;
-            }
+  // --- PROFILE ---
+  async function loadProfile(){
+    try{
+      const res = await fetch(`${API_URL}/users/me`,{credentials:'include'});
+      if(res.status===401) return handleUnauthorized();
+      const user = await res.json();
+      const container = document.getElementById('profile-content');
+      container.innerHTML = `<p><strong>ID:</strong> ${user.user.id}</p>
+      <p><strong>Username:</strong> ${user.user.username}</p>
+      <p><strong>Email:</strong> ${user.user.email}</p>`;
+    }catch(e){ console.error('Error cargando perfil:',e);}
+  }
 
-            container.innerHTML = posts.map((p) => {
-              // Ajuste para la estructura real de Prisma
-              const username = p.author?.username || `User_${p.authorId.slice(0, 4)}`;
-              const likesCount = p._count?.likes ?? 0;
-              const comments = p.comments || [];
+  // --- USERS LIST / MESSAGES ---
+  async function loadUsersList(){
+    try{
+      const res = await fetch(`${API_URL}/users`,{credentials:'include'});
+      if(res.status===401) return handleUnauthorized();
+      const users = await res.json();
+      const list = document.getElementById('users-list');
+      list.innerHTML = users.map(u=>`<div class="cursor-pointer hover:bg-gray-100 p-1 rounded" data-id="${u.id}">${u.username}</div>`).join('');
+      document.querySelectorAll('#users-list div').forEach(el=>el.addEventListener('click',()=>openChat(el.dataset.id, el.innerText)));
+    }catch(e){ console.error('Error cargando usuarios:',e);}
+  }
 
-              return `
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-xs uppercase">
-                            ${username.slice(0, 2)}
-                        </div>
-                        <span class="font-bold text-slate-700 text-sm">@${username}</span>
-                    </div>
-                    <p class="text-slate-600">${p.content}</p>
-                    
-                    <div class="flex items-center gap-4 pt-2 border-t border-slate-50">
-                        <button class="action-like text-slate-400 hover:text-red-500 transition text-sm flex items-center gap-1" data-id="${p.id}">
-                            ❤️ <span class="font-bold">${likesCount}</span>
-                        </button>
-                    </div>
+  function startPollingMessages(){
+    if(pollInterval) clearInterval(pollInterval);
+    pollInterval = setInterval(loadMessages,2000);
+  }
 
-                    <div class="bg-slate-50 p-3 rounded-lg space-y-2">
-                        <div class="max-h-32 overflow-y-auto space-y-2">
-                            ${comments.map(c => `
-                                <div class="text-[11px] bg-white p-2 rounded border border-slate-100 shadow-sm">
-                                    <span class="font-bold text-indigo-600">@${c.author?.username || 'user'}:</span> ${c.content}
-                                </div>
-                            `).join('')}
-                            ${comments.length === 0 ? '<p class="text-[10px] text-slate-400 text-center">Sin comentarios</p>' : ''}
-                        </div>
-                        <div class="flex gap-2 pt-2 border-t border-slate-200">
-                            <input id="comment-in-${p.id}" type="text" placeholder="Comentar..." class="flex-1 text-xs p-2 border rounded outline-none focus:ring-1 focus:ring-indigo-400">
-                            <button class="action-comment bg-indigo-600 text-white text-[10px] px-2 py-1 rounded font-bold uppercase hover:bg-indigo-700" data-id="${p.id}">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-              `;
-            }).join('');
-          } catch (e) {
-            console.error("Error cargando el feed:", e);
-          }
-        }
+  async function openChat(userId, username){
+    currentChatUser = userId;
+    document.getElementById('messages-container').innerHTML='';
+    loadMessages();
+    startPollingMessages();
+  }
 
-        async function createPost() {
-          const content = document.getElementById('post-content').value;
-          if (!content) return;
-          try {
-            const res = await fetch(`${API_URL}/api/v1/posts`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ content }),
-              credentials: 'include',
-            });
-            if (res.ok) {
-              document.getElementById('post-content').value = '';
-              await loadPosts();
-            }
-          } catch (e) {
-            alert('Error al publicar');
-          }
-        }
+  async function loadMessages(){
+    if(!currentChatUser) return;
+    try{
+      const res = await fetch(`${API_URL}/messages/${currentChatUser}`,{credentials:'include'});
+      if(res.status===401) return handleUnauthorized();
+      const data = await res.json();
+      const container = document.getElementById('messages-container');
+      container.innerHTML = data.messages.map(m=>`
+        <div class="message ${m.senderId===data.currentUserId?'from-me':'from-other'}">${m.content}</div>
+      `).join('');
+      container.scrollTop = container.scrollHeight;
+    }catch(e){ console.error('Error cargando mensajes:',e);}
+  }
 
-        function checkStatus() {
-          const isLoggedIn = localStorage.getItem('isLoggedIn');
-          if (isLoggedIn === 'true') {
-            document.getElementById('auth-card').classList.add('hidden');
-            document.getElementById('feed-section').classList.remove('hidden');
-            document.getElementById('user-info').classList.remove('hidden');
-            document.getElementById('username-display').innerText = localStorage.getItem('username');
-            loadPosts();
-          } else {
-            document.getElementById('auth-card').classList.remove('hidden');
-            document.getElementById('feed-section').classList.add('hidden');
-            document.getElementById('user-info').classList.add('hidden');
-          }
-        }
+  async function sendMessage(){
+    if(!currentChatUser) return;
+    const input = document.getElementById('message-input');
+    const content = input.value;
+    if(!content) return;
+    try{
+      const res = await fetch(`${API_URL}/messages/${currentChatUser}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({content}),
+        credentials:'include'
+      });
+      if(res.status===401) return handleUnauthorized();
+      if(res.ok){ input.value=''; loadMessages();}
+    }catch(e){ console.error('Error enviando mensaje:',e);}
+  }
 
-        function logout() {
-          localStorage.clear();
-          location.reload();
-        }
+  // --- SPA LINKS ---
+  document.getElementById('link-feed').addEventListener('click',()=>{
+    document.getElementById('feed-section').classList.remove('hidden');
+    document.getElementById('profile-section').classList.add('hidden');
+    document.getElementById('messages-section').classList.add('hidden');
+  });
+  document.getElementById('link-profile').addEventListener('click',()=>{
+    document.getElementById('feed-section').classList.add('hidden');
+    document.getElementById('profile-section').classList.remove('hidden');
+    document.getElementById('messages-section').classList.add('hidden');
+  });
+  document.getElementById('link-messages').addEventListener('click',()=>{
+    document.getElementById('feed-section').classList.add('hidden');
+    document.getElementById('profile-section').classList.add('hidden');
+    document.getElementById('messages-section').classList.remove('hidden');
+    loadUsersList();
+  });
 
-        window.addEventListener('DOMContentLoaded', () => {
-          document.getElementById('btn-login').addEventListener('click', () => auth('login'));
-          document.getElementById('btn-register').addEventListener('click', () => auth('register'));
-          document.getElementById('btn-logout').addEventListener('click', logout);
-          document.getElementById('btn-publish').addEventListener('click', createPost);
+  // --- EVENT LISTENERS ---
+  document.getElementById('btn-login').addEventListener('click',()=>auth('login'));
+  document.getElementById('btn-register').addEventListener('click',()=>auth('register'));
+  document.getElementById('btn-logout').addEventListener('click',logout);
+  document.getElementById('btn-publish').addEventListener('click',createPost);
+  document.getElementById('btn-send-message').addEventListener('click',sendMessage);
 
-          document.getElementById('posts-container').addEventListener('click', async (e) => {
-            const likeBtn = e.target.closest('.action-like');
-            if (likeBtn) {
-              await handleLike(likeBtn.dataset.id);
-              return;
-            }
-            const commentBtn = e.target.closest('.action-comment');
-            if (commentBtn) {
-              await handleComment(commentBtn.dataset.id);
-              return;
-            }
-          });
+  if(localStorage.getItem('isLoggedIn')==='true') showApp();
 
-          checkStatus();
-        });
-      })();
-    </script>
-  </body>
+})();
+</script>
+</body>
 </html>
