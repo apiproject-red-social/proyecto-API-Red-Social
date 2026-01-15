@@ -2,9 +2,9 @@ import { z } from 'zod';
 
 export const createCommentSchema = z.object({
   body: z.object({
-    content: z.string().min(1).max(500),
+    content: z.string().trim().min(1, 'Comment cannot be empty').max(500, 'Comment too long'),
   }),
   params: z.object({
-    postId: z.string().uuid(),
+    postId: z.string().uuid('Invalid post id'),
   }),
 });

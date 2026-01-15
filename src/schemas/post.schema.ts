@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createPostSchema = z.object({
   body: z.object({
-    content: z.string().min(1).max(280),
+    content: z.string().trim().min(1, 'Post content cannot be empty').max(280, 'Post too long'),
   }),
 });
 
