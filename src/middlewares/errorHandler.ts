@@ -20,7 +20,7 @@ const handlePrismaError = (err: Prisma.PrismaClientKnownRequestError): AppError 
   switch (err.code) {
     case 'P2002': {
       const target = (err.meta?.target as string[])?.join(', ') || 'field';
-      return new AppError(`Duplicate field value: ${target}. Please use another value!`, 400);
+      return new AppError(`Duplicate field value: ${target}. Please use another value!`, 409);
     }
     case 'P2025':
       return new AppError('Record not found.', 404);
