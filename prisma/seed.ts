@@ -1,101 +1,228 @@
+// import { PrismaClient } from '@prisma/client';
+// import bcrypt from 'bcrypt';
+
+// const prisma = new PrismaClient();
+
+// async function main() {
+//   console.log('--- 🗑️ Limpiando base de datos ---');
+//   await prisma.like.deleteMany();
+//   await prisma.comment.deleteMany();
+//   await prisma.post.deleteMany();
+//   await prisma.user.deleteMany();
+
+//   console.log('--- 🌱 Insertando datos coherentes para demo ---');
+
+//   const salt = await bcrypt.genSalt(10);
+//   const passwordHash = await bcrypt.hash('password123', salt);
+
+//   // 1️⃣ Usuarios
+//   const usersData = [
+//     { username: 'Alice', email: 'alice@example.com' },
+//     { username: 'Bob', email: 'bob@example.com' },
+//     { username: 'Charlie', email: 'charlie@example.com' },
+//     { username: 'Diana', email: 'diana@example.com' },
+//     { username: 'Ethan', email: 'ethan@example.com' },
+//   ];
+
+//   const users = [];
+//   for (const u of usersData) {
+//     const user = await prisma.user.create({
+//       data: { ...u, passwordHash, createdAt: new Date() },
+//     });
+//     users.push(user);
+//   }
+
+//   // 2️⃣ Posts
+//   const postsData = [
+//     {
+//       author: users[0],
+//       content: '💡 Dato curioso: Las abejas pueden reconocer rostros humanos.',
+//       comments: [
+//         { author: users[1], content: '¡Increíble! 😲' },
+//         { author: users[2], content: 'No lo sabía, gracias.' },
+//       ],
+//       likes: [users[1], users[2]],
+//     },
+//     {
+//       author: users[1],
+//       content: '📢 Noticias: Nuevo parque abierto en la ciudad central.',
+//       comments: [{ author: users[0], content: '¡Vamos a visitarlo este fin de semana!' }],
+//       likes: [users[0], users[2]],
+//     },
+//     {
+//       author: users[2],
+//       content: '🎨 Tip de arte: Mezcla colores complementarios para un efecto vibrante.',
+//       comments: [{ author: users[0], content: 'Lo probaré en mi próximo proyecto!' }],
+//       likes: [users[0], users[1]],
+//     },
+//     {
+//       author: users[3],
+//       content: '🌍 Viaje: París es hermosa en primavera.',
+//       comments: [{ author: users[4], content: '¡Quiero ir este año!' }],
+//       likes: [users[0], users[2], users[4]],
+//     },
+//     {
+//       author: users[4],
+//       content: '📚 Lectura: Recomiendo "1984" de George Orwell.',
+//       comments: [{ author: users[3], content: 'Clásico que siempre vale la pena.' }],
+//       likes: [users[1], users[3]],
+//     },
+//     {
+//       author: users[0],
+//       content: '🍳 Cocina: Cómo hacer pancakes perfectos.',
+//       comments: [{ author: users[2], content: 'Me encantan los pancakes!' }],
+//       likes: [users[1], users[3]],
+//     },
+//     {
+//       author: users[1],
+//       content: '💻 Tecnología: Nueva versión de JavaScript lanzada.',
+//       comments: [{ author: users[4], content: 'Necesito actualizar mis proyectos.' }],
+//       likes: [users[0], users[2]],
+//     },
+//     {
+//       author: users[2],
+//       content: '🎵 Música: Top 5 canciones del mes.',
+//       comments: [{ author: users[3], content: '¡Me encanta la playlist!' }],
+//       likes: [users[1], users[4]],
+//     },
+//     {
+//       author: users[3],
+//       content: '🏀 Deportes: Final de la liga el domingo.',
+//       comments: [{ author: users[0], content: 'No me lo pierdo!' }],
+//       likes: [users[2], users[4]],
+//     },
+//     {
+//       author: users[4],
+//       content: '📝 Escritura: Tips para un blog efectivo.',
+//       comments: [{ author: users[1], content: 'Muy útil, gracias.' }],
+//       likes: [users[0], users[3]],
+//     },
+//   ];
+
+//   for (const p of postsData) {
+//     const post = await prisma.post.create({
+//       data: { content: p.content, authorId: p.author.id, createdAt: new Date() },
+//     });
+
+//     for (const c of p.comments) {
+//       await prisma.comment.create({
+//         data: { content: c.content, authorId: c.author.id, postId: post.id, createdAt: new Date() },
+//       });
+//     }
+
+//     for (const u of p.likes) {
+//       await prisma.like.create({ data: { userId: u.id, postId: post.id } });
+//     }
+//   }
+
+//   console.log('🚀 Seed listo para demo.');
+//   console.log('Usuarios de prueba:');
+//   users.forEach((u) => console.log(`- ${u.username} / ${u.email} / password123`));
+// }
+
+// main()
+//   .catch((e) => {
+//     console.error('❌ Error en seed manual ampliado:', e);
+//     process.exit(1);
+//   })
+//   .finally(async () => {
+//     await prisma.$disconnect();
+//   });
+
 import { PrismaClient } from '@prisma/client';
-import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('--- 🗑️ Borrando datos existentes ---');
-  // El orden es importante por las relaciones (FK)
-  await prisma.like.deleteMany();
-  await prisma.comment.deleteMany();
-  await prisma.post.deleteMany();
-  await prisma.user.deleteMany();
+  console.log('--- 🗑️ Limpiando base de datos ---');
+  await prisma.$transaction([
+    prisma.like.deleteMany(),
+    prisma.comment.deleteMany(),
+    prisma.post.deleteMany(),
+    prisma.user.deleteMany(),
+  ]);
 
-  console.log('--- 🌱 Generando nuevos datos ---');
-
-  // Dentro de la función main del seed:
+  console.log('--- 🌱 Creando usuarios ---');
   const salt = await bcrypt.genSalt(10);
-  const commonPasswordHash = await bcrypt.hash('password123', salt);
+  const passwordHash = await bcrypt.hash('password123', salt);
 
-  // 1. Crear 10 Usuarios
+  const usersData = [
+    { username: 'Alice', email: 'alice@example.com' },
+    { username: 'Bob', email: 'bob@example.com' },
+    { username: 'Charlie', email: 'charlie@example.com' },
+    { username: 'Diana', email: 'diana@example.com' },
+    { username: 'Ethan', email: 'ethan@example.com' },
+  ];
+
   const users = await Promise.all(
-    Array.from({ length: 10 }).map(() =>
-      prisma.user.create({
-        data: {
-          username: faker.internet.username(),
-          email: faker.internet.email(),
-          passwordHash: commonPasswordHash,
-          createdAt: faker.date.past({ years: 1 }),
-        },
-      }),
-    ),
+    usersData.map((u) => prisma.user.create({ data: { ...u, passwordHash } })),
   );
 
-  console.log(`✅ ${users.length} usuarios creados.`);
+  console.log('--- 📝 Generando 15 posts con interacciones ---');
 
-  // 2. Crear Posts para cada usuario
-  for (const user of users) {
-    const posts = await Promise.all(
-      Array.from({ length: 3 }).map(() =>
-        prisma.post.create({
-          data: {
-            content: faker.lorem.paragraph({ min: 1, max: 3 }),
-            authorId: user.id,
-            createdAt: faker.date.recent({ days: 30 }),
-          },
-        }),
-      ),
-    );
+  const rawPosts = [
+    { content: '💡 Dato curioso: Las abejas pueden reconocer rostros humanos.', author: users[0] },
+    { content: '📢 Noticias: Nuevo parque abierto en la ciudad central.', author: users[1] },
+    {
+      content: '🎨 Tip de arte: Mezcla colores complementarios para un efecto vibrante.',
+      author: users[2],
+    },
+    { content: '🌍 Viaje: París es hermosa en primavera.', author: users[3] },
+    { content: '📚 Lectura: Recomiendo "1984" de George Orwell.', author: users[4] },
+    { content: '🍳 Cocina: Cómo hacer pancakes perfectos.', author: users[0] },
+    { content: '💻 Tecnología: Nueva versión de JavaScript lanzada.', author: users[1] },
+    { content: '🎵 Música: Top 5 canciones del mes.', author: users[2] },
+    { content: '🏀 Deportes: Final de la liga el domingo.', author: users[3] },
+    { content: '📝 Escritura: Tips para un blog efectivo.', author: users[4] },
+    { content: '🚀 Espacio: La NASA descubre un nuevo exoplaneta.', author: users[0] },
+    { content: '🧘 Salud: 5 minutos de meditación cambian tu día.', author: users[1] },
+    { content: '🎬 Cine: El estreno de la semana es imperdible.', author: users[2] },
+    { content: '🐕 Mascotas: Cómo entender el lenguaje de tu perro.', author: users[3] },
+    { content: '🎮 Gaming: Los mejores lanzamientos de 2024.', author: users[4] },
+  ];
 
-    // 3. Crear Comentarios y Likes para cada Post
-    for (const post of posts) {
-      // Generar entre 1 y 3 comentarios por post
-      const numComments = faker.number.int({ min: 1, max: 3 });
+  // Comentarios predefinidos para dar variedad
+  const genericComments = [
+    '¡Qué buen post! 👏',
+    'Totalmente de acuerdo contigo.',
+    'Gracias por compartir esta información.',
+    'Me interesa mucho este tema.',
+    '¿Podrías contar más sobre esto?',
+  ];
 
-      for (let i = 0; i < numComments; i++) {
-        await prisma.comment.create({
-          data: {
-            content: faker.lorem.sentence(),
-            authorId: users[Math.floor(Math.random() * users.length)].id,
-            postId: post.id,
-            createdAt: faker.date.recent({ days: 5 }),
-          },
-        });
-      }
+  for (const [index, p] of rawPosts.entries()) {
+    // Seleccionamos un par de usuarios aleatorios para comentarios y likes
+    const randomUser1 = users[(index + 1) % users.length];
+    const randomUser2 = users[(index + 2) % users.length];
 
-      // Generar entre 2 y 5 likes por post
-      const numLikes = faker.number.int({ min: 2, max: 5 });
-      const shuffledUsers = [...users].sort(() => 0.5 - Math.random());
-      const selectedUsers = shuffledUsers.slice(0, numLikes);
-
-      for (const likingUser of selectedUsers) {
-        await prisma.like
-          .create({
-            data: {
-              userId: likingUser.id,
-              postId: post.id,
+    await prisma.post.create({
+      data: {
+        content: p.content,
+        authorId: p.author.id,
+        createdAt: new Date(Date.now() - index * 3600000), // Posts en diferentes horas
+        comments: {
+          create: [
+            {
+              content: genericComments[index % genericComments.length],
+              authorId: randomUser1.id,
             },
-          })
-          .catch(() => {
-            // Ignoramos duplicados si los hay
-          });
-      }
-    }
+          ],
+        },
+        likes: {
+          create: [{ userId: randomUser1.id }, { userId: randomUser2.id }],
+        },
+      },
+    });
   }
 
-  console.log('🚀 Seed completado con éxito. La base de datos está lista para probar.');
-  console.log('--- 💡 USUARIO DE PRUEBA ---');
-  console.log(`Email: ${users[0].email}`);
-  console.log(`Password: password123`);
-  console.log('---------------------------');
+  console.log('✅ Seed completado con éxito.');
+  console.table(users.map((u) => ({ usuario: u.username, email: u.email })));
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error en el seed:', e);
+    console.error('❌ Error:', e);
     process.exit(1);
   })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+  .finally(() => prisma.$disconnect());
