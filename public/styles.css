@@ -1,0 +1,33 @@
+/* Configuración de base */
+body {
+  background-color: #f8fafc;
+  color: #1e293b;
+}
+
+/* Utilidades de estado */
+.hidden {
+  display: none !important;
+}
+
+.active-link {
+  border-bottom: 3px solid #3b82f6;
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+/* Componentes de la Red Social */
+.post-card {
+  transition: transform 0.2s;
+}
+
+.comment-box {
+  background-color: #f1f5f9;
+  border-radius: 12px;
+  padding: 10px 15px;
+}
+
+/* Estados de interacción */
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
