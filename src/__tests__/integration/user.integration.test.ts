@@ -77,16 +77,15 @@ describe('User API', () => {
     expect(res.status).toBe(400);
     expect(res.body.message).toContain('Validation error');
   });
-  // src/__tests__/integration/user.integration.test.ts
 
   it('POST /api/v1/users → 409 if email already exists (Prisma)', async () => {
     const res = await request(app).post('/api/v1/users').send({
       username: 'differentuser',
-      email: testUser.email, // Ya existe
+      email: testUser.email,
       password: 'password123',
     });
 
-    expect(res.status).toBe(409); // Coincide con el errorHandler
+    expect(res.status).toBe(409);
     expect(res.body.message).toContain('Duplicate field value');
   });
 
@@ -95,10 +94,12 @@ describe('User API', () => {
 
     expect(res.status).toBe(200);
     const userData = res.body.user || res.body;
+
     expect(userData).toHaveProperty('id', userId);
     expect(userData).toHaveProperty('username', testUser.username);
-  });
 
+    expect(userData).toHaveProperty('email');
+  });
   // --- PRUEBAS DE PERFIL Y SESIÓN ---
 
   it('GET /api/v1/users/:id → get public profile', async () => {
