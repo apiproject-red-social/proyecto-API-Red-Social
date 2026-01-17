@@ -30,6 +30,24 @@ x-common-responses:
         schema: { $ref: '#/components/schemas/Error' }
 
 paths:
+  /health:
+      get:
+        tags: [System]
+        summary: Health check
+        description: Retorna el estado básico del sistema y servicios.
+        responses:
+          200:
+            description: El servicio está funcionando correctamente
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    status: { type: string, example: "ok" }
+                    uptime: { type: number, example: 120.5 }
+                    timestamp: { type: string, format: date-time }
+                    hostname: { type: string, example: "api-server" }
+                    environment: { type: string, example: "production" }
   /auth/register:
     post:
       tags: [Auth]

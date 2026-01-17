@@ -1,0 +1,51 @@
+services:
+  test-api:
+    build: 
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    entrypoint: [""]
+    command: >
+      sh -c "sleep 2 && npx prisma db push --force-reset && npm run test:ci"
+    environment:
+      - NODE_ENV=test
+      - DATABASE_URL=postgresql://postgres:postgres@test-db:5432/microblog_test
+      - REDIS_URL=redis://test-redis:6379
+      - JWT_ACCESS_SECRET=test_secret
+      - JWT_REFRESH_SECRET=test_secret_refresh
+      - CORS_ORIGIN=http://localhost:3000  # <--- MOVIDO AQUÍ
+    networks: [test-net]
+    depends_on:
+      test-db:
+        condition: service_healthy
+      test-redis:
+        condition: service_healthy
+
+  test-db:
+    image: postgres:15-alpine
+    container_name: compose-test-db-1
+    tmpfs: [/var/lib/postgresql/data]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=microblog_test
+      # CORS_ORIGIN ELIMINADO DE AQUÍ
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d microblog_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    networks: [test-net]
+
+  test-redis:
+    image: redis:7-alpine
+    container_name: compose-test-redis-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks: [test-net]
+
+networks:
+  test-net:
+    driver: bridge

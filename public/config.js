@@ -1,4 +1,5 @@
-export const API_URL = 'http://localhost:3000/api/v1';
+// public/config.js
+export const API_URL = '/api/v1';
 export const POSTS_PER_PAGE = 5;
 
 export const state = {

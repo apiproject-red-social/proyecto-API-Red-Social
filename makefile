@@ -1,123 +1,60 @@
-# ======================================================
-# Project configuration
-# ======================================================
-PROJECT_NAME := microblog
-COMPOSE := docker compose
+C_DEV  := docker compose -f compose/compose.dev.yml
+C_DEMO := docker compose -f compose/compose.demo.yml
+C_TEST := docker compose -f compose/compose.test.yml
 
-# Default env files (can be overridden per target)
-ENV_DEV := .env.development
-ENV_TEST := .env.test
+.PHONY: demo test services dev-docker down clean build status
 
-# ======================================================
-# Helpers
-# ======================================================
-.PHONY: help
-help:
-	@echo ""
-	@echo "Available commands:"
-	@echo "  make dev               Run app locally (no Docker)"
-	@echo "  make dev-docker        Run app with Docker (dev + hot reload)"
-	@echo "  make up                Start Docker services (dev)"
-	@echo "  make down              Stop Docker services (dev)"
-	@echo "  make rebuild           Rebuild Docker images"
-	@echo "  make logs              Follow API logs (dev)"
-	@echo ""
-	@echo "  make prisma-generate   Generate Prisma client"
-	@echo "  make prisma-migrate    Run Prisma migrations (dev)"
-	@echo "  make prisma-reset      Reset TEST database"
-	@echo ""
-	@echo "  make test              Run tests locally"
-	@echo "  make test-docker       Run tests inside Docker"
-	@echo "  make demo              Run app inside Docker"
-	@echo ""
+# Construcción de imágenes
+build:
+	@$(C_DEV) build
+	@$(C_DEMO) build
+	@$(C_TEST) build
 
-# ======================================================
-# Local development (no Docker)
-# ======================================================
-.PHONY: dev
-dev:
-	@echo "▶ Running app locally (NODE_ENV=development)"
-	@NODE_ENV=development npm run dev
+# --- COMANDOS PRINCIPALES ---
 
-# ======================================================
-# Docker: development
-# ======================================================
-.PHONY: up
-up:
-	@echo "▶ Starting Docker services (dev)"
-	@$(COMPOSE) up -d
-
-.PHONY: down
-down:
-	@echo "▶ Stopping Docker services (dev)"
-	@$(COMPOSE) down
-
-.PHONY: rebuild
-rebuild:
-	@echo "▶ Rebuilding Docker images"
-	@$(COMPOSE) build --no-cache
-
-.PHONY: dev-docker
-dev-docker:
-	@echo "▶ Running app with Docker (dev + hot reload)"
-	@$(COMPOSE) up --build
-
-.PHONY: logs
-logs:
-	@echo "▶ Following API logs"
-	@$(COMPOSE) logs -f api
-
-# ======================================================
-# Prisma (Dentro de Docker)
-# ======================================================
-.PHONY: prisma-generate
-prisma-generate:
-	@echo "▶ Generating Prisma client inside Docker"
-	@$(COMPOSE) exec api npx prisma generate
-
-.PHONY: db-push
-db-push:
-	@echo "▶ Sincronizando esquema en Docker (dev)"
-	@$(COMPOSE) exec api npm run db:push
-
-.PHONY: prisma-migrate
-prisma-migrate:
-	@echo "▶ Running Prisma migrations inside Docker"
-	@$(COMPOSE) exec api npx prisma migrate dev --name init
-
-.PHONY: prisma-reset
-prisma-reset:
-	@echo "⚠ Resetting TEST database (using test-docker flow)"
-	@$(COMPOSE) -f compose.test.yml up --build --abort-on-container-exit
-
-# ======================================================
-# Tests
-# ======================================================
-.PHONY: test
-test:
-	@echo "▶ Running tests locally"
-	@NODE_ENV=test npm test
-
-.PHONY: test-docker
-test-docker:
-	@echo "▶ Running tests in isolated Docker environment"
-	@$(COMPOSE) -f compose.test.yml up --build --abort-on-container-exit
-
-.PHONY: test-down
-test-down:
-	@echo "▶ Stopping test Docker containers"
-	@$(COMPOSE) -f compose.test.yml down
-
-.PHONY: test-coverage
-test-coverage:
-	@echo "▶ Running tests with coverage inside Docker"
-	@$(COMPOSE) -f compose.test.yml run --rm api-test npm run test:ci
-
-# ======================================================
-# Producción: Modo Evaluación
-# ======================================================
-.PHONY: demo
 demo:
-	@echo "▶ Preparando entorno de evaluación..."
-	@echo "▶ La aplicación estará lista en http://localhost:3000"
-	@docker compose -f compose.prod.yml up --build
+	@echo "🚀 Iniciando Demo Efímera..."
+	@$(C_DEMO) up --build --remove-orphans
+
+test:
+	@echo "🧪 Ejecutando Tests Integrados..."
+	@$(C_TEST) up --build --abort-on-container-exit --exit-code-from test-api --remove-orphans
+	@$(C_TEST) down -v
+
+services:
+	@echo "🐘 Levantando infraestructura local (Modo Mixto)..."
+	@$(C_DEV) up -d dev-db dev-redis
+
+dev-docker:
+	@echo "🐳 Levantando stack de desarrollo completo..."
+	@$(C_DEV) up --build
+
+# --- UTILIDADES ---
+
+status:
+	@docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Apaga todo eliminando contenedores huérfanos
+down:
+	@$(C_DEV) down --remove-orphans
+	@$(C_DEMO) down --remove-orphans
+	@$(C_TEST) down --remove-orphans
+
+# Limpieza profunda pero segura (solo de este proyecto)
+clean:
+	@echo "🧹 Limpiando contenedores, redes y volúmenes del proyecto..."
+	@$(C_DEV) down -v --rmi local --remove-orphans
+	@$(C_DEMO) down -v --rmi local --remove-orphans
+	@$(C_TEST) down -v --rmi local --remove-orphans
+	@echo "✨ Proyecto limpio."
+
+# Ver logs de la API en demo rápidamente
+logs-demo:
+	@$(C_DEMO) logs -f api
+
+
+# Limpieza de TODO en todo docker
+clean-docker:
+	docker compose -f compose/compose.dev.yml down -v
+	docker system prune -f
+	@echo "✨ Todo limpio. Imágenes sin usar y caché borradas."

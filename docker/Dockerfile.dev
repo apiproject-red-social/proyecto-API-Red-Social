@@ -1,0 +1,14 @@
+FROM node:22-alpine
+RUN apk add --no-cache libc6-compat openssl bash curl
+WORKDIR /app
+
+# Optimización de caché de capas
+COPY package*.json ./
+RUN npm install
+
+# Copiamos esquema prisma antes para generar el cliente
+COPY prisma ./prisma/
+RUN npx prisma generate
+
+COPY . .
+# No definimos CMD aquí, se gestiona en los archivos Compose

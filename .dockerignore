@@ -1,0 +1,23 @@
+# Dependencias (se instalan dentro del Dockerfile)
+node_modules
+npm-debug.log
+
+# Compilados
+dist
+build
+
+# Docker y Configuración
+.dockerignore
+docker-compose*.yml
+.git
+.gitignore
+
+# Variables sensibles (¡No queremos copiar secretos locales!)
+.env
+.env.local
+.env.test
+
+# Documentación y otros
+docs
+README.md
+Makefile

@@ -1,0 +1,61 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ..:/app
+      - /app/node_modules  # Protege los módulos instalados en el contenedor
+    
+    # COMANDO DEVOPS: Sincroniza DB, ejecuta Seed y arranca el modo watch
+    command: >
+      bash -c "npx prisma db push && 
+               npx prisma db seed && 
+               npm run dev"
+    
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres@dev-db:5432/microblog_dev
+      - REDIS_URL=redis://dev-redis:6379
+      
+      # Fallbacks para no romper el tipado de Zod si no hay archivo .env
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev_secret_access_123}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev_secret_refresh_123}
+    
+    tty: true
+    stdin_open: true
+    
+    depends_on:
+      dev-db:
+        condition: service_healthy
+      dev-redis:
+        condition: service_healthy
+
+  dev-db:
+    image: postgres:15-alpine
+    container_name: dev-db
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=microblog_dev
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  dev-redis:
+    image: redis:7-alpine
+    container_name: dev-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
