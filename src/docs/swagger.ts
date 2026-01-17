@@ -1,27 +1,38 @@
-// src/docs/swagger.ts
 import { Application } from 'express';
-import swaggerJsdoc, { Options } from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import fs from 'fs';
+import path from 'path';
+import yaml from 'js-yaml';
+import { fileURLToPath } from 'url';
 
-const options: Options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Microblogging API',
-      version: '1.0.0',
-      description: 'API for microblogging demo project',
-    },
-    servers: [
-      {
-        url: 'http://localhost:3000/api/v1',
-      },
-    ],
-  },
-  apis: ['./src/docs/*.yaml', './src/routes/*.ts'],
-};
-
-const specs = swaggerJsdoc(options);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 export const setupSwagger = (app: Application) => {
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+  try {
+    // Buscamos el archivo en la misma carpeta que este script ejecutado
+    const yamlPath = path.join(__dirname, 'openapi.yaml');
+
+    if (!fs.existsSync(yamlPath)) {
+      // Log de ayuda para saber qué está viendo Docker realmente
+      console.error(`⚠️ Archivo NO encontrado en: ${yamlPath}`);
+      console.log(`Directorio actual: ${__dirname}`);
+      return;
+    }
+
+    const swaggerDocument = yaml.load(fs.readFileSync(yamlPath, 'utf8')) as any;
+
+    app.use(
+      '/api-docs',
+      swaggerUi.serve,
+      swaggerUi.setup(swaggerDocument, {
+        swaggerOptions: { persistAuthorization: true },
+        customSiteTitle: 'Microblogging API Docs',
+      }),
+    );
+
+    console.log('📖 Swagger cargado correctamente desde openapi.yaml');
+  } catch (error) {
+    console.error('❌ Error crítico en Swagger:', error);
+  }
 };

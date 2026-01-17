@@ -1,0 +1,48 @@
+# STAGE 1: Build
+FROM node:22-alpine AS builder
+RUN apk add --no-cache openssl
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm ci --ignore-scripts
+
+COPY prisma ./prisma/
+RUN npx prisma generate
+
+COPY . .
+RUN npm run build
+
+# STAGE 2: RUNTIME
+FROM node:22-alpine AS runner
+
+# 1. Instalamos dependencias necesarias
+RUN apk add --no-cache openssl curl bash postgresql-client libc6-compat redis && \
+    mkdir -p /app && chown node:node /app
+
+WORKDIR /app
+
+# 2. Copiamos los archivos con el dueño correcto desde el inicio
+COPY --from=builder --chown=node:node /app/package*.json ./
+COPY --from=builder --chown=node:node /app/node_modules ./node_modules
+COPY --from=builder --chown=node:node /app/dist ./dist
+COPY --from=builder --chown=node:node /app/public ./public
+COPY --from=builder --chown=node:node /app/prisma ./prisma
+COPY --from=builder --chown=node:node /app/docker/entrypoint.demo.sh ./entrypoint.demo.sh
+
+# --- ARREGLO PARA SWAGGER (Sincronizado con el log) ---
+# 1. Creamos la carpeta dist/docs que es donde el servidor busca el archivo
+RUN mkdir -p /app/dist/docs && chown -R node:node /app/dist
+
+# 2. Copiamos el archivo YAML directamente a la ruta que salió en el log
+COPY --from=builder --chown=node:node /app/src/docs/openapi.yaml /app/dist/docs/openapi.yaml
+
+# 3. Copiamos las rutas por si acaso (opcional)
+COPY --from=builder --chown=node:node /app/src/routes /app/src/routes
+# -----------------------------------------------------
+
+# 3. Permisos y ejecución
+RUN chmod +x ./entrypoint.demo.sh
+
+USER node
+EXPOSE 3000
+ENTRYPOINT ["./entrypoint.demo.sh"]

@@ -1,0 +1,57 @@
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+    image: compose-demo-api
+    container_name: demo-api-1
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@demo-db:5432/microblog_demo?schema=public
+      - REDIS_URL=redis://demo-redis:6379
+      - PORT=3000
+      # Variables de seguridad requeridas por la App
+      - CORS_ORIGIN=*
+      - JWT_ACCESS_SECRET=demo_secret_tribunal_2024_access
+      - JWT_REFRESH_SECRET=demo_secret_tribunal_2024_refresh
+    depends_on:
+      demo-db:
+        condition: service_healthy
+      demo-redis:
+        condition: service_healthy
+    networks:
+      - demo-net
+
+  demo-db:
+    image: postgres:15-alpine
+    container_name: demo-db-1
+    tmpfs: 
+      - /var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=microblog_demo
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d microblog_demo"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+    networks:
+      - demo-net
+
+  demo-redis:
+    image: redis:7-alpine
+    container_name: demo-redis-1
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - demo-net
+
+networks:
+  demo-net:
+    driver: bridge
