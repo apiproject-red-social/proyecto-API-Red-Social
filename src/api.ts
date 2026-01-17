@@ -20,8 +20,8 @@ const __dirname = path.dirname(__filename);
 
 const publicPath =
   env.NODE_ENV === 'production'
-    ? path.resolve(__dirname, '../public') // En prod (dist/public)
-    : path.resolve(process.cwd(), 'public'); // En dev (raiz/public)
+    ? path.resolve(__dirname, '../public')
+    : path.resolve(process.cwd(), 'public');
 
 const app = express();
 
@@ -65,20 +65,28 @@ app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1', healthRouter);
 
-// 5. SOPORTE PARA SPA (SOLUCIÓN DEFINITIVA PARA EXPRESS 5)
-/** * Usamos app.use sin ruta. Esto intercepta CUALQUIER petición que llegue a este punto.
- * Como no hay cadena de texto (string path), no hay error de PathError.
+// 5. SOPORTE PARA SPA (CORREGIDO PARA TESTS Y PRODUCCIÓN)
+/** * Lógica de filtrado inteligente:
+ * Si la petición es para la API o no pide explícitamente HTML, la dejamos pasar.
+ * Esto permite que el NotFoundHandler devuelva 404 en lugar de 200 con el index.html.
  */
 app.use((req, res, next) => {
-  // Solo queremos manejar peticiones GET (navegación del navegador)
+  // Solo interceptamos GET
   if (req.method !== 'GET') return next();
 
-  // Si la ruta empieza por api o api-docs, no enviamos el HTML (dejamos que llegue al 404)
+  // Si es API o Swagger, no es para el frontend
   if (req.path.startsWith('/api') || req.path.startsWith('/api-docs')) {
     return next();
   }
 
-  // Para todo lo demás, servimos el index.html del frontend
+  // Si NO es una petición de un navegador (Accept: text/html), la dejamos pasar al 404
+  // Esto arregla el test que esperaba 404 y recibía 200
+  const acceptsHtml = req.headers.accept?.includes('text/html');
+  if (!acceptsHtml && req.path !== '/') {
+    return next();
+  }
+
+  // Para todo lo demás (navegación real), enviamos el frontend
   res.sendFile(path.join(publicPath, 'index.html'));
 });
 
