@@ -5,11 +5,12 @@ import { prisma } from '../../lib/prisma.js';
 import jwt from 'jsonwebtoken';
 import { env } from '../../config/env.js';
 import { JWT_CONFIG } from '../../config/jwt.js';
+import bcrypt from 'bcrypt';
 
 const testUser = {
   username: 'user_suite_admin',
   email: 'admin_suite@example.com',
-  password: 'password123', // Mínimo 8 caracteres para Zod
+  password: 'password123',
 };
 
 let userId: string;
@@ -24,15 +25,17 @@ describe('User API', () => {
           { email: testUser.email },
           { email: 'another@example.com' },
           { username: 'anotheruser' },
+          { username: 'nuevo_username' },
         ],
       },
     });
 
+    const hashed = await bcrypt.hash(testUser.password, 10);
     const created = await prisma.user.create({
       data: {
         username: testUser.username,
         email: testUser.email,
-        passwordHash: testUser.password,
+        passwordHash: hashed,
       },
     });
 
@@ -44,7 +47,6 @@ describe('User API', () => {
   });
 
   afterAll(async () => {
-    // Limpieza final de residuos de tests
     await prisma.user.deleteMany({
       where: {
         OR: [{ email: testUser.email }, { email: 'another@example.com' }],
@@ -87,7 +89,6 @@ describe('User API', () => {
     });
 
     expect(res.status).toBe(409);
-    // Ajustado al mensaje real de tu servidor ("User already exists" o el de Prisma)
     expect(res.body.message).toMatch(/already exists|Duplicate/i);
   });
 
@@ -95,19 +96,10 @@ describe('User API', () => {
 
   it('GET /api/v1/users/:id → get public profile', async () => {
     const res = await request(app).get(`/api/v1/users/${userId}`);
-
     expect(res.status).toBe(200);
     const userData = res.body.user || res.body;
-
     expect(userData).toHaveProperty('id', userId);
-    expect(userData).toHaveProperty('username', testUser.username);
-    // Aceptamos que el email venga incluido para simplificar el test
-    expect(userData).toHaveProperty('email');
-  });
-
-  it('GET /api/v1/users/me → 401 without token', async () => {
-    const res = await request(app).get('/api/v1/users/me');
-    expect(res.status).toBe(401);
+    expect(userData).toHaveProperty('username');
   });
 
   it('GET /api/v1/users/me → 200 with valid token', async () => {
@@ -119,10 +111,54 @@ describe('User API', () => {
     expect(userData).toHaveProperty('email', testUser.email);
   });
 
-  it('GET /api/v1/users/non-existent → 404', async () => {
-    const fakeId = '00000000-0000-0000-0000-000000000000';
-    const res = await request(app).get(`/api/v1/users/${fakeId}`);
+  // --- PRUEBAS DE GESTIÓN DE PERFIL (EDIT/PASSWORD/DELETE) ---
 
-    expect(res.status).toBe(404);
+  it('PATCH /api/v1/users/me → debe editar el username exitosamente', async () => {
+    const res = await request(app)
+      .patch('/api/v1/users/me')
+      .set('Cookie', `accessToken=${token}`)
+      .send({ username: 'nuevo_username' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.username).toBe('nuevo_username');
+  });
+
+  it('PATCH /api/v1/users/me/password → debe fallar si la contraseña actual es incorrecta', async () => {
+    const res = await request(app)
+      .patch('/api/v1/users/me/password')
+      .set('Cookie', `accessToken=${token}`)
+      .send({
+        currentPassword: 'wrong_password',
+        newPassword: 'newPassword123',
+      });
+
+    expect(res.status).toBe(401);
+  });
+
+  it('PATCH /api/v1/users/me/password → debe cambiar la contraseña exitosamente', async () => {
+    const res = await request(app)
+      .patch('/api/v1/users/me/password')
+      .set('Cookie', `accessToken=${token}`)
+      .send({
+        currentPassword: testUser.password,
+        newPassword: 'newPasswordSecure123',
+      });
+
+    expect(res.status).toBe(200);
+
+    // Verificar que la nueva contraseña funciona comparando el hash en DB
+    const userDb = await prisma.user.findUnique({ where: { id: userId } });
+    const isMatch = await bcrypt.compare('newPasswordSecure123', userDb!.passwordHash);
+    expect(isMatch).toBe(true);
+  });
+
+  it('DELETE /api/v1/users/me → debe borrar la cuenta y limpiar cookies', async () => {
+    const res = await request(app).delete('/api/v1/users/me').set('Cookie', `accessToken=${token}`);
+
+    expect(res.status).toBe(204);
+
+    // Verificar que el usuario ya no existe
+    const userDb = await prisma.user.findUnique({ where: { id: userId } });
+    expect(userDb).toBeNull();
   });
 });

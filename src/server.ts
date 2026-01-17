@@ -1,6 +1,8 @@
 import app from './api.js';
 import logger from './config/logger.js';
 import { env } from './config/env.js';
+import { prisma } from './lib/prisma.js';
+import { redis } from './lib/redis.js';
 
 // Handle uncaught exceptions (sync errors)
 process.on('uncaughtException', (err: Error) => {
@@ -26,3 +28,17 @@ process.on('unhandledRejection', (reason: unknown) => {
     process.exit(1);
   });
 });
+
+// Graceful Shutdown
+const shutdown = async (signal: string) => {
+  logger.info(`Received ${signal}. Shutting down gracefully...`);
+  server.close(async () => {
+    await prisma.$disconnect();
+    await redis.quit();
+    logger.info('Connections closed. Process terminated.');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));

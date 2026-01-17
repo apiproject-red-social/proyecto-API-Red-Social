@@ -4,9 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Social API Demo | TFG Final</title>
-
     <script src="https://cdn.tailwindcss.com"></script>
-
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="min-h-screen">
@@ -14,14 +12,8 @@
       <div class="max-w-3xl mx-auto flex justify-between items-center">
         <h1 class="text-xl font-bold tracking-tight">🚀 Social Demo</h1>
         <div id="user-info" class="hidden flex items-center gap-4 text-sm">
-          <span
-            id="username-display"
-            class="px-3 py-1 rounded-full bg-gray-800 border border-gray-700"
-          ></span>
-          <button
-            id="btn-logout"
-            class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded font-bold transition text-white"
-          >
+          <span id="username-display" class="px-3 py-1 rounded-full bg-gray-800 border border-gray-700"></span>
+          <button id="btn-logout" class="bg-red-500 hover:bg-red-600 px-3 py-1 rounded font-bold transition text-white">
             Salir
           </button>
         </div>
@@ -29,37 +21,14 @@
     </nav>
 
     <main class="max-w-3xl mx-auto px-4 pb-20">
-      <div
-        id="auth-card"
-        class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 mt-10"
-      >
+      <div id="auth-card" class="max-w-md mx-auto bg-white p-8 rounded-2xl shadow-xl border border-gray-100 mt-10">
         <h2 class="text-2xl font-bold text-center mb-6">Acceso Proyecto</h2>
         <div class="space-y-4">
-          <input
-            type="email"
-            id="email"
-            placeholder="Email"
-            class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="password"
-            id="password"
-            placeholder="Contraseña"
-            class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <input type="email" id="email" placeholder="Email" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
+          <input type="password" id="password" placeholder="Contraseña" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500" />
           <div class="flex gap-4">
-            <button
-              id="btn-login"
-              class="flex-1 bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-black transition"
-            >
-              Entrar
-            </button>
-            <button
-              id="btn-register"
-              class="flex-1 border-2 border-gray-900 font-bold py-3 rounded-xl hover:bg-gray-50 transition"
-            >
-              Registro
-            </button>
+            <button id="btn-login" class="flex-1 bg-gray-900 text-white font-bold py-3 rounded-xl hover:bg-black transition">Entrar</button>
+            <button id="btn-register" class="flex-1 border-2 border-gray-900 font-bold py-3 rounded-xl hover:bg-gray-50 transition">Registro</button>
           </div>
         </div>
       </div>
@@ -72,55 +41,43 @@
 
         <div id="feed-section" class="space-y-6">
           <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <textarea
-              id="post-content"
-              rows="3"
-              placeholder="¿Qué quieres compartir hoy?"
-              class="w-full p-4 bg-gray-50 border rounded-xl resize-none focus:ring-2 focus:ring-blue-400 mb-3 outline-none"
-            ></textarea>
-            <button
-              id="btn-publish"
-              class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md"
-            >
-              Publicar
-            </button>
+            <textarea id="post-content" rows="3" placeholder="¿Qué quieres compartir hoy?" class="w-full p-4 bg-gray-50 border rounded-xl resize-none focus:ring-2 focus:ring-blue-400 mb-3 outline-none"></textarea>
+            <button id="btn-publish" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md">Publicar</button>
           </div>
-
           <div id="posts-container" class="space-y-4"></div>
-
           <div id="pagination-container" class="flex items-center justify-center gap-2 py-8">
-            <button
-              id="prev-page"
-              class="p-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-30"
-            >
-              Anterior
-            </button>
+            <button id="prev-page" class="p-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-30">Anterior</button>
             <div id="page-numbers" class="flex gap-2 text-sm font-bold"></div>
-            <button
-              id="next-page"
-              class="p-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-30"
-            >
-              Siguiente
-            </button>
+            <button id="next-page" class="p-2 bg-white border rounded-lg hover:bg-gray-50 disabled:opacity-30">Siguiente</button>
           </div>
         </div>
 
         <div id="detail-section" class="hidden space-y-4">
-          <button
-            id="back-feed"
-            class="flex items-center gap-2 text-blue-600 font-bold hover:bg-blue-50 px-3 py-2 rounded-lg transition"
-          >
-            ⬅ Volver al feed
-          </button>
+          <button id="back-feed" class="flex items-center gap-2 text-blue-600 font-bold hover:bg-blue-50 px-3 py-2 rounded-lg transition">⬅ Volver al feed</button>
           <div id="detail-content"></div>
         </div>
 
-        <div
-          id="profile-section"
-          class="hidden bg-white p-8 rounded-2xl shadow-sm border border-gray-200"
-        >
-          <h2 class="text-xl font-bold mb-4 border-b pb-2">Datos de Usuario</h2>
-          <div id="profile-content" class="space-y-3"></div>
+        <div id="profile-section" class="hidden space-y-6">
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <h2 class="text-xl font-bold mb-6 border-b pb-2">Configuración de Perfil</h2>
+            <div id="profile-content" class="space-y-4">
+              </div>
+          </div>
+
+          <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-200">
+            <h3 class="font-bold mb-4 text-gray-700">Seguridad</h3>
+            <div class="space-y-3">
+              <input type="password" id="current-pass" placeholder="Contraseña actual" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
+              <input type="password" id="new-pass" placeholder="Nueva contraseña" class="w-full p-3 bg-gray-50 border rounded-xl outline-none focus:ring-2 focus:ring-blue-400">
+              <button id="btn-change-pass" class="w-full bg-gray-800 text-white font-bold py-2 rounded-xl hover:bg-black transition">Actualizar Contraseña</button>
+            </div>
+          </div>
+
+          <div class="bg-red-50 p-8 rounded-2xl border border-red-100">
+            <h3 class="font-bold text-red-600 mb-1">Zona de Peligro</h3>
+            <p class="text-xs text-red-500 mb-4">La eliminación de la cuenta es permanente y borrará todos tus datos.</p>
+            <button id="btn-delete-account" class="w-full bg-red-600 text-white font-bold py-2 rounded-xl hover:bg-red-700 transition">Eliminar mi cuenta</button>
+          </div>
         </div>
       </div>
     </main>

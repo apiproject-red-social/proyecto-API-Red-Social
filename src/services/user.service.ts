@@ -53,3 +53,33 @@ export const getUserById = async (id: string) => {
 
   return user;
 };
+
+export const updateUser = async (id: string, data: { username?: string; email?: string }) => {
+  return prisma.user.update({
+    where: { id },
+    data,
+    select: { id: true, username: true, email: true },
+  });
+};
+
+export const deleteUser = async (id: string) => {
+  return prisma.user.delete({ where: { id } });
+};
+
+export const updatePassword = async (userId: string, currentPass: string, newPass: string) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new AppError('User not found', 404);
+
+  // 1. Verificar contraseña actual
+  const isMatch = await bcrypt.compare(currentPass, user.passwordHash);
+  if (!isMatch) throw new AppError('Current password is incorrect', 401);
+
+  // 2. Hashear la nueva
+  const passwordHash = await bcrypt.hash(newPass, 10);
+
+  // 3. Guardar e invalidar todas las sesiones previas (opcional pero recomendado)
+  return prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+};

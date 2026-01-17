@@ -8,25 +8,26 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(uuid())
-  username String  @unique
-  email    String  @unique
+  id           String    @id @default(uuid())
+  username     String    @unique
+  email        String    @unique
   passwordHash String
-  posts    Post[]
-  createdAt DateTime @default(now())
-  comments Comment[]
-  likes Like[]
+  posts        Post[]
+  createdAt    DateTime  @default(now())
+  comments     Comment[]
+  likes        Like[]
 }
 
 model Post {
-  id        String   @id @default(uuid())
-  content   String   @db.VarChar(280)
-  author    User     @relation(fields: [authorId], references: [id])
+  id        String    @id @default(uuid())
+  content   String    @db.VarChar(280)
+  // CAMBIO AQUÍ: Se añade onDelete: Cascade
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  comments Comment[]
-  likes Like[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[]
+  likes     Like[]
 }
 
 model Comment {
@@ -47,6 +48,5 @@ model Like {
   userId    String
   createdAt DateTime @default(now())
 
-  // Esto evita que un usuario dé más de un like al mismo post
   @@unique([postId, userId])
 }

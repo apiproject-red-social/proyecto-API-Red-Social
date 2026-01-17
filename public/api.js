@@ -1,3 +1,4 @@
+// public/api.js
 import { API_URL } from './config.js';
 import { showToast } from './notifications.js';
 
@@ -8,32 +9,27 @@ async function apiFetch(endpoint, options = {}) {
       ...options,
     });
 
-    // 1. Manejo de Sesión Expirada (401)
     if (res.status === 401 && !endpoint.includes('/auth/login')) {
       localStorage.clear();
       location.reload();
       return null;
     }
 
-    // 2. Manejo de Errores (400, 403, 404, 500, etc.)
+    // Leemos el JSON una sola vez aquí y lo guardamos
+    const data = await res.json().catch(() => ({}));
+
     if (!res.ok) {
-      // Intentamos extraer el mensaje de error que envía el backend (Zod, Prisma, etc.)
-      const errorData = await res.json().catch(() => ({}));
-      
-      // Si el backend envió un mensaje, lo mostramos, si no, uno genérico
-      const msg = errorData.message || 'Error en la operación';
-      
-      showToast(msg, 'error');
-      
-      // Devolvemos la respuesta para que app.js sepa que res.ok es false
-      return res; 
+      showToast(data.message || 'Error en la operación', 'error');
+      return null; // Si hay error, devolvemos null
     }
 
-    // 3. Todo OK
-    return res;
+    // Si todo está OK, devolvemos los datos. 
+    // Agregamos una propiedad 'ok' manual para que tus 'if (res.ok)' sigan funcionando
+    data.ok = true; 
+    return data;
   } catch (error) {
     console.error('Fetch error:', error);
-    showToast('Error de conexión con el servidor', 'error');
+    showToast('Error de conexión', 'error');
     return null;
   }
 }
@@ -43,24 +39,37 @@ export const authService = {
     return apiFetch(`/auth/${type}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      // Generamos un username básico a partir del email para el registro
-      body: JSON.stringify({ 
-        email, 
-        password, 
-        username: email.split('@')[0] 
-      }),
+      body: JSON.stringify({ email, password, username: email.split('@')[0] }),
     });
   },
   async getMe() {
-    const res = await apiFetch('/users/me');
-    return res ? res.json() : null;
+    return apiFetch('/users/me');
   },
+};
+
+export const userService = {
+  async updateProfile(username, email) {
+    return apiFetch('/users/me', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, email }),
+    });
+  },
+  async changePassword(currentPassword, newPassword) {
+    return apiFetch('/users/me/password', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ currentPassword, newPassword }),
+    });
+  },
+  async deleteAccount() {
+    return apiFetch('/users/me', { method: 'DELETE' });
+  }
 };
 
 export const postService = {
   async getPosts(page, limit) {
-    const res = await apiFetch(`/posts?page=${page}&limit=${limit}`);
-    return res ? res.json() : null;
+    return apiFetch(`/posts?page=${page}&limit=${limit}`);
   },
   async createPost(content) {
     return apiFetch('/posts', {
@@ -68,6 +77,9 @@ export const postService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ content }),
     });
+  },
+  async deletePost(postId) {
+    return apiFetch(`/posts/${postId}`, { method: 'DELETE' });
   },
   async toggleLike(postId) {
     return apiFetch(`/posts/${postId}/like`, { method: 'POST' });
