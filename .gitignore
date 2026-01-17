@@ -19,12 +19,11 @@ logs/
 *.log
 *.log.*
 
-# Environments
+# Environment files
 .env
-.env.local
-.env.development
-.env.test
-.env.production
+.env.*
+!.env.example
+
 
 # Allow examples
 !.env.example
