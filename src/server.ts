@@ -4,7 +4,6 @@ import { env } from './config/env.js';
 import { prisma } from './lib/prisma.js';
 import { redis } from './lib/redis.js';
 
-// Handle uncaught exceptions (sync errors)
 process.on('uncaughtException', (err: Error) => {
   logger.error('💥 UNCAUGHT EXCEPTION! Shutting down...');
   logger.error(`${err.name}: ${err.message}`, { stack: err.stack });
@@ -16,7 +15,6 @@ const server = app.listen(PORT, () => {
   logger.info(`🚀 Server running on port ${PORT} in ${env.NODE_ENV} mode`);
 });
 
-// Handle unhandled promise rejections
 process.on('unhandledRejection', (reason: unknown) => {
   logger.error('💥 UNHANDLED REJECTION! Shutting down...');
   if (reason instanceof Error) {
@@ -29,7 +27,6 @@ process.on('unhandledRejection', (reason: unknown) => {
   });
 });
 
-// Graceful Shutdown
 const shutdown = async (signal: string) => {
   logger.info(`Received ${signal}. Shutting down gracefully...`);
   server.close(async () => {

@@ -11,19 +11,16 @@ describe('Comment API', () => {
   let postByUser2Id: string;
 
   beforeAll(async () => {
-    // Crear Usuario 1 (El que comenta)
     const user1 = await prisma.user.create({
       data: { username: 'comentador', email: 'user1@test.com', passwordHash: 'hash' },
     });
     user1Token = jwt.sign({ userId: user1.id }, env.JWT_ACCESS_SECRET);
 
-    // Crear Usuario 2 (El dueño del post)
     const user2 = await prisma.user.create({
       data: { username: 'posteador', email: 'user2@test.com', passwordHash: 'hash' },
     });
     user2Id = user2.id;
 
-    // Crear un Post del Usuario 2
     const post = await prisma.post.create({
       data: { content: 'Post original de User 2', authorId: user2Id },
     });

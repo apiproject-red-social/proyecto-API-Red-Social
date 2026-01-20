@@ -21,19 +21,16 @@ describe('Like API', () => {
     });
     postId = post.id;
 
-    // Firmar con userId para coincidir con tu JwtPayload
     token = jwt.sign({ userId: userId }, env.JWT_ACCESS_SECRET);
   });
 
   it('POST /api/v1/posts/:postId/like → toggle like flow', async () => {
-    // 1. Dar Like
     const res1 = await request(app)
       .post(`/api/v1/posts/${postId}/like`)
-      .set('Cookie', `accessToken=${token}`); // <--- Vital
+      .set('Cookie', `accessToken=${token}`);
 
     expect(res1.status).toBe(201);
 
-    // 2. Quitar Like
     const res2 = await request(app)
       .post(`/api/v1/posts/${postId}/like`)
       .set('Cookie', `accessToken=${token}`);

@@ -7,14 +7,13 @@ export function showSection(sectionId) {
   const target = document.getElementById(sectionId);
   if (target) target.classList.remove('hidden');
 
-  // Manejo de clases activas en el menú de navegación
   const linkFeed = document.getElementById('link-feed');
   const linkProfile = document.getElementById('link-profile');
 
   if (linkFeed) {
     linkFeed.classList.toggle(
       'active-link',
-      sectionId === 'feed-section' || sectionId === 'detail-section'
+      sectionId === 'feed-section' || sectionId === 'detail-section',
     );
   }
   if (linkProfile) {
@@ -33,15 +32,14 @@ export function renderComments(comments) {
         <p class="text-[10px] font-bold text-blue-600">@${c.author?.username || 'Anon'}</p>
         <p class="text-xs text-gray-700 leading-tight">${c.content}</p>
       </div>
-    `
+    `,
     )
     .join('');
 }
 
 export function updatePaginationUI(currentPage, totalPosts, limit, onPageClick) {
-  // Calculamos el total de páginas basado en el conteo real del backend
   const totalPages = Math.ceil(totalPosts / limit) || 1;
-  
+
   const prevBtn = document.getElementById('prev-page');
   const nextBtn = document.getElementById('next-page');
 
@@ -53,12 +51,10 @@ export function updatePaginationUI(currentPage, totalPosts, limit, onPageClick) 
 
   nums.innerHTML = '';
 
-  // Generamos los botones de números de página
   for (let i = 1; i <= totalPages; i++) {
     const b = document.createElement('button');
     b.innerText = i;
-    
-    // Estilo sutil y moderno para los botones
+
     const isActive = i === currentPage;
     b.className = `w-9 h-9 rounded-xl text-xs font-bold transition-all ${
       isActive

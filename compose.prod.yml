@@ -1,7 +1,7 @@
 services:
   api:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.prod
     image: microblog-api-prod
     restart: always
@@ -9,7 +9,6 @@ services:
       - "${PORT_API:-3000}:3000"
     environment:
       NODE_ENV: production
-      # Construimos la URL usando las variables del .env para que coincidan siempre
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?schema=public
       REDIS_URL: redis://redis:6379
       JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET}
@@ -33,7 +32,6 @@ services:
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
     healthcheck:
-      # Usamos la variable de usuario para el check de salud
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
@@ -58,5 +56,3 @@ volumes:
 networks:
   prod_net:
     driver: bridge
-    # internal: false es el valor por defecto, permite que la API salga a internet 
-    # (por ejemplo para enviar emails o conectar con APIs externas)

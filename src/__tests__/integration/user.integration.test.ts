@@ -18,7 +18,6 @@ let token: string;
 
 describe('User API', () => {
   beforeAll(async () => {
-    // Limpieza inicial profunda
     await prisma.user.deleteMany({
       where: {
         OR: [
@@ -55,8 +54,6 @@ describe('User API', () => {
     await prisma.$disconnect();
   });
 
-  // --- PRUEBAS DE REGISTRO ---
-
   it('POST /api/v1/users → register a user successfully', async () => {
     const res = await request(app).post('/api/v1/users').send({
       username: 'anotheruser',
@@ -92,8 +89,6 @@ describe('User API', () => {
     expect(res.body.message).toMatch(/already exists|Duplicate/i);
   });
 
-  // --- PRUEBAS DE PERFIL Y SESIÓN ---
-
   it('GET /api/v1/users/:id → get public profile', async () => {
     const res = await request(app).get(`/api/v1/users/${userId}`);
     expect(res.status).toBe(200);
@@ -110,8 +105,6 @@ describe('User API', () => {
     expect(userData).toHaveProperty('id', userId);
     expect(userData).toHaveProperty('email', testUser.email);
   });
-
-  // --- PRUEBAS DE GESTIÓN DE PERFIL (EDIT/PASSWORD/DELETE) ---
 
   it('PATCH /api/v1/users/me → debe editar el username exitosamente', async () => {
     const res = await request(app)
@@ -146,7 +139,6 @@ describe('User API', () => {
 
     expect(res.status).toBe(200);
 
-    // Verificar que la nueva contraseña funciona comparando el hash en DB
     const userDb = await prisma.user.findUnique({ where: { id: userId } });
     const isMatch = await bcrypt.compare('newPasswordSecure123', userDb!.passwordHash);
     expect(isMatch).toBe(true);
@@ -157,7 +149,6 @@ describe('User API', () => {
 
     expect(res.status).toBe(204);
 
-    // Verificar que el usuario ya no existe
     const userDb = await prisma.user.findUnique({ where: { id: userId } });
     expect(userDb).toBeNull();
   });

@@ -1,4 +1,3 @@
-// public/api.js
 import { API_URL } from './config.js';
 import { showToast } from './notifications.js';
 
@@ -15,17 +14,14 @@ async function apiFetch(endpoint, options = {}) {
       return null;
     }
 
-    // Leemos el JSON una sola vez aquí y lo guardamos
     const data = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       showToast(data.message || 'Error en la operación', 'error');
-      return null; // Si hay error, devolvemos null
+      return null;
     }
 
-    // Si todo está OK, devolvemos los datos. 
-    // Agregamos una propiedad 'ok' manual para que tus 'if (res.ok)' sigan funcionando
-    data.ok = true; 
+    data.ok = true;
     return data;
   } catch (error) {
     console.error('Fetch error:', error);
@@ -64,7 +60,7 @@ export const userService = {
   },
   async deleteAccount() {
     return apiFetch('/users/me', { method: 'DELETE' });
-  }
+  },
 };
 
 export const postService = {

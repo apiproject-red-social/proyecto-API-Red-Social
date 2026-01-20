@@ -85,7 +85,6 @@ export const refresh = async (req: Request, res: Response) => {
   }
 
   try {
-    // Aquí es donde usamos 'verifyRefreshToken'
     const payload = verifyRefreshToken(token);
     const stored = await redis.get(`refresh:${payload.userId}`);
 
@@ -108,12 +107,9 @@ export const logout = async (req: Request, res: Response) => {
 
   if (token) {
     try {
-      // Usamos 'verifyRefreshToken' para saber de quién es el token y borrarlo de Redis
       const payload = verifyRefreshToken(token);
       await redis.del(`refresh:${payload.userId}`);
-    } catch {
-      // Si el token ya era inválido, procedemos con el borrado de cookies igualmente
-    }
+    } catch {}
   }
 
   return res.clearCookie('accessToken').clearCookie('refreshToken').json({ message: 'Logged out' });

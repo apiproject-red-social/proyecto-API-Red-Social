@@ -1,4 +1,3 @@
-// public/app.js
 import { state, POSTS_PER_PAGE } from './config.js';
 import { postService, authService, userService } from './api.js';
 import * as ui from './ui.js';
@@ -66,14 +65,12 @@ function createPostElement(p) {
     </div>
   `;
 
-  // Eventos del Post
   div.querySelector('.btn-view-detail').onclick = () => showPostDetail(p.id);
 
   div.querySelector('.btn-like').onclick = async () => {
     if (await postService.toggleLike(p.id)) loadPosts(state.currentPage);
   };
 
-  // RESTAURADO: Lógica de envío de comentario desde el feed
   div.querySelector('.btn-send-comment').onclick = async () => {
     const input = div.querySelector('.comment-input');
     const content = input.value.trim();
@@ -97,10 +94,6 @@ function createPostElement(p) {
   }
   return div;
 }
-
-// ... (Resto de funciones: handleAuth, loadProfile, showPostDetail, setupEventListeners)
-// Mantén las funciones handleAuth, loadProfile, showPostDetail y setupEventListeners
-// exactamente como estaban en mi respuesta anterior, están optimizadas para no usar alertas.
 
 async function handleAuth(type) {
   const email = document.getElementById('email').value;

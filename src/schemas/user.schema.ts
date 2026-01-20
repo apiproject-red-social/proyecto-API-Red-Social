@@ -8,7 +8,7 @@ export const registerUserSchema = z.object({
       .min(3, 'Username must be at least 3 characters')
       .max(20, 'Username too long'),
     email: z.string().email('Invalid email format'),
-    password: z.string().min(8, 'Password must be at least 8 characters'), // Más seguro que 6
+    password: z.string().min(8, 'Password must be at least 8 characters'),
   }),
 });
 

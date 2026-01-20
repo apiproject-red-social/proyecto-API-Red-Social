@@ -9,7 +9,7 @@ Date: 2025-12-21
 
 ## Context
 
-The project requires a robust relational database to store entities like users, posts, and comments in a structured and maintainable way. For an academic project (TFG), it is essential to use a stack that balances modern industry standards, high-quality developer experience, and reliable data integrity.
+The project requires a robust relational database to store entities like users, posts, and comments in a structured and maintainable way. For an academic project, it is essential to use a stack that balances modern industry standards, high-quality developer experience, and reliable data integrity.
 
 ## Decision
 

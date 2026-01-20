@@ -4,7 +4,7 @@ import { authenticate } from '../middlewares/auth.middleware.js';
 import { validate } from '../middlewares/validate.middleware.js';
 import { createCommentSchema } from '../schemas/comment.schema.js';
 
-const router = Router({ mergeParams: true }); // IMPORTANTE: mergeParams para leer postId
+const router = Router({ mergeParams: true });
 
 router.post('/', authenticate, validate(createCommentSchema), commentController.addComment);
 router.get('/', commentController.getPostComments);

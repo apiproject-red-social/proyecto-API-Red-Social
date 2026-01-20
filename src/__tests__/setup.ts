@@ -2,11 +2,8 @@ import { beforeAll, afterAll } from 'vitest';
 import { prisma } from '../lib/prisma.js';
 
 beforeAll(async () => {
-  // Conectar explícitamente al inicio
   await prisma.$connect();
 
-  // Limpieza agresiva: Truncate resetea IDs y borra todo en orden correcto
-  // El comando depende de tu DB (este ejemplo es para PostgreSQL)
   const tables = ['Comment', 'Post', 'User'];
 
   try {
@@ -18,7 +15,4 @@ beforeAll(async () => {
   }
 });
 
-afterAll(async () => {
-  // No desconectes aquí si otros tests están usando la misma instancia
-  // Pero sí podemos asegurar que no hay transacciones pendientes
-});
+afterAll(async () => {});

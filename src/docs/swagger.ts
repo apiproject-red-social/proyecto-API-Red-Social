@@ -10,11 +10,9 @@ const __dirname = path.dirname(__filename);
 
 export const setupSwagger = (app: Application) => {
   try {
-    // Buscamos el archivo en la misma carpeta que este script ejecutado
     const yamlPath = path.join(__dirname, 'openapi.yaml');
 
     if (!fs.existsSync(yamlPath)) {
-      // Log de ayuda para saber qué está viendo Docker realmente
       console.error(`⚠️ Archivo NO encontrado en: ${yamlPath}`);
       console.log(`Directorio actual: ${__dirname}`);
       return;

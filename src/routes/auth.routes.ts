@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { login, refresh, logout, register } from '../controllers/auth.controller.js';
 import { authenticate } from '../middlewares/auth.middleware.js';
-import { validate } from '../middlewares/validate.middleware.js'; // Ajusta la ruta si es necesario
+import { validate } from '../middlewares/validate.middleware.js';
 import { registerUserSchema } from '../schemas/user.schema.js';
 
 const router = Router();

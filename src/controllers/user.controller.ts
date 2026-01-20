@@ -39,13 +39,10 @@ export const deleteAccount = async (req: Request, res: Response, next: NextFunct
   try {
     const userId = req.user!.userId;
 
-    // 1. Borrar de Redis PRIMERO (para invalidar sesiones activas)
     await redis.del(`refresh:${userId}`);
 
-    // 2. Borrar de la DB (Prisma se encarga de posts/comments por el Cascade)
     await userService.deleteUser(userId);
 
-    // 3. Limpiar cookies del navegador
     res.clearCookie('accessToken');
     res.clearCookie('refreshToken');
 

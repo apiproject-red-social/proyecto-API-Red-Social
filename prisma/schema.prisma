@@ -21,7 +21,6 @@ model User {
 model Post {
   id        String    @id @default(uuid())
   content   String    @db.VarChar(280)
-  // CAMBIO AQUÍ: Se añade onDelete: Cascade
   author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   authorId  String
   createdAt DateTime  @default(now())

@@ -1,15 +1,14 @@
 services:
   api:
     build:
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.dev
     ports:
       - "3000:3000"
     volumes:
-      - ..:/app
-      - /app/node_modules  # Protege los módulos instalados en el contenedor
+      - .:/app
+      - /app/node_modules
     
-    # COMANDO DEVOPS: Sincroniza DB, ejecuta Seed y arranca el modo watch
     command: >
       bash -c "npx prisma db push && 
                npx prisma db seed && 
@@ -19,8 +18,6 @@ services:
       - NODE_ENV=development
       - DATABASE_URL=postgresql://postgres:postgres@dev-db:5432/microblog_dev
       - REDIS_URL=redis://dev-redis:6379
-      
-      # Fallbacks para no romper el tipado de Zod si no hay archivo .env
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-dev_secret_access_123}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-dev_secret_refresh_123}

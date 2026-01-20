@@ -1,4 +1,3 @@
-// public/config.js
 export const API_URL = '/api/v1';
 export const POSTS_PER_PAGE = 5;
 

@@ -28,7 +28,6 @@ export const createUser = async (input: CreateUserInput) => {
 
     return user;
   } catch (error: any) {
-    // Prisma unique constraint violation
     if (error.code === 'P2002') {
       throw new AppError('User already exists', 409);
     }
@@ -70,14 +69,11 @@ export const updatePassword = async (userId: string, currentPass: string, newPas
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw new AppError('User not found', 404);
 
-  // 1. Verificar contraseña actual
   const isMatch = await bcrypt.compare(currentPass, user.passwordHash);
   if (!isMatch) throw new AppError('Current password is incorrect', 401);
 
-  // 2. Hashear la nueva
   const passwordHash = await bcrypt.hash(newPass, 10);
 
-  // 3. Guardar e invalidar todas las sesiones previas (opcional pero recomendado)
   return prisma.user.update({
     where: { id: userId },
     data: { passwordHash },

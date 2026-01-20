@@ -1,6 +1,4 @@
-// public/notifications.js
 export function showToast(message, type = 'success') {
-  // Eliminamos el 'if (type === 'success') return;' para que SÍ avise
   
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -12,7 +10,6 @@ export function showToast(message, type = 'success') {
 
   const toast = document.createElement('div');
   
-  // Estilo base: Azul para éxito (Twitter), Rojo para error
   const bgColor = type === 'error' ? 'bg-[#e0245e]' : 'bg-[#1da1f2]';
   
   toast.className = `${bgColor} text-white px-6 py-3 rounded-full shadow-2xl flex items-center justify-center min-w-[200px] pointer-events-auto transform transition-all duration-300 ease-out opacity-0 translate-y-4 text-sm font-bold`;

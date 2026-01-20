@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as postService from '../services/post.service.js';
-import { prisma } from '../lib/prisma.js'; // Necesario para el conteo
+import { prisma } from '../lib/prisma.js';
 import AppError from '../utils/AppError.js';
 
 export const createPost = async (req: Request, res: Response, next: NextFunction) => {
@@ -28,13 +28,11 @@ export const getFeed = async (req: Request, res: Response, next: NextFunction) =
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 10;
 
-    // Ejecutamos ambas consultas en paralelo para máxima eficiencia
     const [posts, total] = await Promise.all([
       postService.getFeed(page, limit),
       prisma.post.count(),
     ]);
 
-    // Devolvemos el objeto con posts y el total real
     res.json({ posts, total });
   } catch (error) {
     next(error);

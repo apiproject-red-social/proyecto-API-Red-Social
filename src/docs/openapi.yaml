@@ -1,8 +1,12 @@
 openapi: 3.0.0
 info:
-  title: API Red Social - TFG
+  title: Social Network API
   version: 1.0.0
-  description: Documentación interactiva para el boilerplate de la Red Social.
+  description: >
+    Interactive API documentation Authentication is cookie-based (HttpOnly cookies).
+
+servers:
+  - url: http://localhost:3000/api/v1
 
 tags:
   - name: Auth
@@ -14,189 +18,565 @@ tags:
 
 x-common-responses:
   BadRequest: &BadRequest
-    description: Error de validación o datos incorrectos
+    description: Validation error or invalid data
     content:
       application/json:
-        schema: { $ref: '#/components/schemas/Error' }
+        schema:
+          $ref: '#/components/schemas/Error'
+
   Unauthorized: &Unauthorized
-    description: No autorizado
+    description: Unauthorized
     content:
       application/json:
-        schema: { $ref: '#/components/schemas/Error' }
+        schema:
+          $ref: '#/components/schemas/Error'
+
   NotFound: &NotFound
-    description: Recurso no encontrado
+    description: Resource not found
     content:
       application/json:
-        schema: { $ref: '#/components/schemas/Error' }
+        schema:
+          $ref: '#/components/schemas/Error'
+
+  Conflict: &Conflict
+    description: Duplicate resource
+    content:
+      application/json:
+        schema:
+          $ref: '#/components/schemas/Error'
 
 paths:
+  # ---------- SYSTEM ----------
   /health:
-      get:
-        tags: [System]
-        summary: Health check
-        description: Retorna el estado básico del sistema y servicios.
-        responses:
-          200:
-            description: El servicio está funcionando correctamente
-            content:
-              application/json:
-                schema:
-                  type: object
-                  properties:
-                    status: { type: string, example: "ok" }
-                    uptime: { type: number, example: 120.5 }
-                    timestamp: { type: string, format: date-time }
-                    hostname: { type: string, example: "api-server" }
-                    environment: { type: string, example: "production" }
-  /auth/register:
-    post:
-      tags: [Auth]
-      summary: Registro de usuario
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/UserRegister' }
-      responses:
-        201:
-          description: Usuario creado
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/UserResponse' }
-        400: *BadRequest
-
-  /users/me:
     get:
-      tags: [Users]
-      summary: Obtener mi perfil
-      security: [{ bearerAuth: [] }]
+      tags: [System]
+      summary: Health check
       responses:
         200:
-          description: Datos del usuario autenticado
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/UserResponse' }
-        401: *Unauthorized
-
-  /posts:
-    get:
-      tags: [Posts]
-      summary: Obtener feed
-      responses:
-        200:
-          description: Lista de publicaciones
-          content:
-            application/json:
-              schema:
-                type: array
-                items: { $ref: '#/components/schemas/PostResponse' }
-    post:
-      tags: [Posts]
-      summary: Crear post
-      security: [{ bearerAuth: [] }]
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema: { $ref: '#/components/schemas/PostContent' }
-      responses:
-        201:
-          description: Post creado
-          content:
-            application/json:
-              schema: { $ref: '#/components/schemas/PostResponse' }
-        401: *Unauthorized
-
-  /posts/{postId}/likes:
-    post:
-      tags: [Likes]
-      summary: Dar/Quitar Like a un post
-      security: [{ bearerAuth: [] }]
-      parameters:
-        - name: postId
-          in: path
-          required: true
-          schema: { type: string, format: uuid }
-      responses:
-        200:
-          description: Operación exitosa
+          description: Service is running
           content:
             application/json:
               schema:
                 type: object
                 properties:
-                  message: { type: string, example: 'Like toggled' }
+                  status: { type: string, example: "ok" }
+                  uptime: { type: number, example: 123.45 }
+                  timestamp: { type: string, format: date-time, example: "2026-01-20T15:00:00Z" }
+                  hostname: { type: string, example: "api-server" }
+                  environment: { type: string, example: "development" }
+
+  # ---------- AUTH ----------
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegister'
+      responses:
+        201:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRegisterResponse'
+        400: *BadRequest
+        409: *Conflict
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: Sets accessToken and refreshToken cookies (HttpOnly)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthLoginRequest'
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+        401: *Unauthorized
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh access token
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Token refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthRefreshResponse'
+        401: *Unauthorized
+        403:
+          description: Invalid or expired refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLogoutResponse'
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get authenticated user
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: Authenticated user info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        401: *Unauthorized
+
+  # ---------- USERS ----------
+  /users/me:
+    get:
+      tags: [Users]
+      summary: Get own profile
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: User profile
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        401: *Unauthorized
+
+    patch:
+      tags: [Users]
+      summary: Update profile
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        200:
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Profile updated successfully" }
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        400: *BadRequest
+        401: *Unauthorized
+
+    delete:
+      tags: [Users]
+      summary: Delete own account
+      security:
+        - cookieAuth: []
+      responses:
+        204:
+          description: Account deleted successfully
+
+  /users/me/password:
+    patch:
+      tags: [Users]
+      summary: Change password
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserChangePasswordRequest'
+      responses:
+        200:
+          description: Password changed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message: { type: string, example: "Password updated successfully" }
+        400: *BadRequest
+        401: *Unauthorized
+
+  /users/{id}:
+    get:
+      tags: [Users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        200:
+          description: User data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: '#/components/schemas/UserResponse'
+        404: *NotFound
+
+  # ---------- POSTS ----------
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Get feed
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            example: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            example: 10
+      responses:
+        200:
+          description: Feed with total count
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total: { type: integer, example: 100 }
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PostResponse'
+
+    post:
+      tags: [Posts]
+      summary: Create post
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostContent'
+      responses:
+        201:
+          description: Post created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post:
+                    $ref: '#/components/schemas/PostResponse'
+        401: *Unauthorized
+
+  /posts/{postId}:
+    get:
+      tags: [Posts]
+      summary: Get post by ID
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+            example: "550e8400-e29b-41d4-a716-446655440000"
+      responses:
+        200:
+          description: Post
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post:
+                    $ref: '#/components/schemas/PostResponse'
+        404: *NotFound
+
+    patch:
+      tags: [Posts]
+      summary: Update post
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostContent'
+      responses:
+        200:
+          description: Post updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  post:
+                    $ref: '#/components/schemas/PostResponse'
+        401: *Unauthorized
+        404: *NotFound
+
+    delete:
+      tags: [Posts]
+      summary: Delete post
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        204:
+          description: Post deleted
+
+  /posts/{postId}/like:
+    post:
+      tags: [Likes]
+      summary: Toggle like
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Like removed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeToggleResponse'
+        201:
+          description: Like added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeToggleResponse'
+        401: *Unauthorized
         404: *NotFound
 
   /posts/{postId}/comments:
     get:
       tags: [Comments]
-      summary: Obtener comentarios de un post
+      summary: Get comments for a post
       parameters:
         - name: postId
           in: path
           required: true
-          schema: { type: string, format: uuid }
+          schema:
+            type: string
+            format: uuid
       responses:
         200:
-          description: Lista de comentarios
+          description: Comments list
           content:
             application/json:
               schema:
-                type: array
-                items: { $ref: '#/components/schemas/CommentResponse' }
+                type: object
+                properties:
+                  comments:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CommentResponse'
+        404: *NotFound
+
+    post:
+      tags: [Comments]
+      summary: Add comment
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentContent'
+      responses:
+        201:
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  comment:
+                    $ref: '#/components/schemas/CommentResponse'
+        401: *Unauthorized
         404: *NotFound
 
 components:
   securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: accessToken
 
   schemas:
     UserRegister:
       type: object
       required: [username, email, password]
       properties:
-        username: { type: string, example: 'antonio_dev' }
-        email: { type: string, format: email, example: 'antonio@example.com' }
-        password: { type: string, format: password, example: 'secret123' }
+        username: { type: string, example: "antonio_dev" }
+        email: { type: string, format: email, example: "antonio@example.com" }
+        password: { type: string, format: password, example: "secret123" }
+
+    UserResponse:
+      type: object
+      properties:
+        id: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        username: { type: string, example: "antonio_dev" }
+        email: { type: string, example: "antonio@example.com" }
+        createdAt: { type: string, format: date-time, example: "2026-01-20T15:00:00Z" }
+
+    UserUpdateRequest:
+      type: object
+      properties:
+        username: { type: string, example: "antonio_updated" }
+        email: { type: string, format: email, example: "antonio_updated@example.com" }
+
+    UserChangePasswordRequest:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, format: password, example: "secret123" }
+        newPassword: { type: string, format: password, example: "newSecret456" }
+
+    AuthLoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, format: email, example: "antonio@example.com" }
+        password: { type: string, format: password, example: "secret123" }
+
+    AuthLoginResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Logged in" }
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    AuthRegisterResponse:
+      type: object
+      properties:
+        message: { type: string, example: "User created successfully" }
+        user:
+          $ref: '#/components/schemas/UserResponse'
+
+    AuthRefreshResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Token refreshed" }
+
+    AuthLogoutResponse:
+      type: object
+      properties:
+        message: { type: string, example: "Logged out" }
 
     PostContent:
       type: object
       required: [content]
       properties:
-        content: { type: string, maxLength: 280, example: 'Aprendiendo OpenAPI!' }
-
-    UserResponse:
-      type: object
-      properties:
-        id: { type: string, format: uuid, example: '550e8400-e29b-41d4-a716-446655440000' }
-        username: { type: string, example: 'antonio_dev' }
-        email: { type: string, example: 'antonio@example.com' }
-        createdAt: { type: string, format: date-time }
+        content: { type: string, maxLength: 280, example: "Learning OpenAPI!" }
 
     PostResponse:
       type: object
       properties:
-        id: { type: string, format: uuid }
-        content: { type: string }
-        authorId: { type: string, format: uuid }
-        likesCount: { type: integer, example: 10 }
-        createdAt: { type: string, format: date-time }
+        id: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        content: { type: string, example: "Learning OpenAPI!" }
+        authorId: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        likesCount: { type: integer, example: 5 }
+        createdAt: { type: string, format: date-time, example: "2026-01-20T15:00:00Z" }
+
+    CommentContent:
+      type: object
+      required: [content]
+      properties:
+        content: { type: string, example: "Nice post!" }
 
     CommentResponse:
       type: object
       properties:
-        id: { type: string, format: uuid }
-        content: { type: string }
-        postId: { type: string, format: uuid }
-        authorId: { type: string, format: uuid }
-        createdAt: { type: string, format: date-time }
+        id: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        content: { type: string, example: "Nice post!" }
+        postId: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        authorId: { type: string, format: uuid, example: "550e8400-e29b-41d4-a716-446655440000" }
+        createdAt: { type: string, format: date-time, example: "2026-01-20T15:00:00Z" }
+
+    LikeToggleResponse:
+      type: object
+      properties:
+        liked: { type: boolean, example: true }
+        likesCount: { type: integer, example: 6 }
 
     Error:
       type: object
       properties:
-        message: { type: string, example: 'Token invalid or expired' }
-        code: { type: string, example: 'UNAUTHORIZED' }
+        status: { type: string, example: "fail" }
+        message: { type: string, example: "Invalid token or expired" }

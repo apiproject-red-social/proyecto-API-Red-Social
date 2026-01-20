@@ -1,7 +1,7 @@
 services:
   test-api:
     build: 
-      context: ..
+      context: .
       dockerfile: docker/Dockerfile.dev
     entrypoint: [""]
     command: >
@@ -12,7 +12,7 @@ services:
       - REDIS_URL=redis://test-redis:6379
       - JWT_ACCESS_SECRET=test_secret
       - JWT_REFRESH_SECRET=test_secret_refresh
-      - CORS_ORIGIN=http://localhost:3000  # <--- MOVIDO AQUÍ
+      - CORS_ORIGIN=http://localhost:3000
     networks: [test-net]
     depends_on:
       test-db:
@@ -28,7 +28,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=microblog_test
-      # CORS_ORIGIN ELIMINADO DE AQUÍ
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d microblog_test"]
       interval: 3s
