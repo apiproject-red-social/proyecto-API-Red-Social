@@ -1,4 +1,4 @@
-# 🚀 Simple Microblogging API
+# 🚀 Microblogging API — Demo Guide
 
 **TypeScript · Express · PostgreSQL · Redis · Docker**
 
@@ -8,171 +8,85 @@
 ![Node](https://img.shields.io/badge/node-%3E%3D18-green)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-blue)
 
-> API REST para una **plataforma de microblogging**, diseñada con una arquitectura clara, tecnologías actuales y preparada para **desarrollo, testing y despliegue en contenedores**.
-> Pensada como proyecto académico y base sólida de backend profesional.
+This repository contains a REST API for a simple microblogging platform.
+The project is designed to be **easily executed in a demo environment** using Docker, without requiring complex configuration.
+
+The demo setup is **self-contained** and intended for evaluation, testing, and exploration of the API features.
 
 ---
 
-## 🧠 Objetivo del proyecto
+## 🧠 Project Overview
 
-Este proyecto demuestra **cómo se estructura y despliega una API moderna** usando:
+The application exposes a RESTful API that supports:
 
-* separación clara de responsabilidades
-* base de datos relacional
-* caché con Redis
-* variables de entorno por entorno
-* contenerización con Docker
-* testing automatizado
+- User registration and authentication (JWT)
+- Creating, updating and deleting posts
+- Commenting on posts
+- Liking and unliking posts
+- Basic health checks
+- Interactive API documentation (Swagger)
 
-El foco está en **el flujo de peticiones**, no en detalles internos complejos.
-
----
-
-## 🛠️ Tecnologías utilizadas
-
-### Backend
-
-* **Node.js** (ESM)
-* **TypeScript** (modo estricto)
-* **Express.js v5**
-
-### Persistencia y datos
-
-* **PostgreSQL** → base de datos principal
-* **Prisma ORM** → acceso tipado a la base de datos
-* **Redis** → caché y soporte a autenticación
-
-### Seguridad y utilidades
-
-* JWT (access + refresh)
-* Helmet, CORS
-* Zod (validación de datos y variables de entorno)
-
-### Observabilidad
-
-* Winston (logs persistentes)
-* Morgan (logs HTTP)
-
-### Testing
-
-* Vitest (unitarios)
-* Supertest (integración)
-* Coverage con V8
-
-### DevOps / Infraestructura
-
-* Docker & Docker Compose
-* Entornos: development, test, production
-* GitHub Actions + Codecov
-* Conventional Commits
+The focus of the project is **backend architecture clarity**, not frontend complexity.
 
 ---
 
-## 📂 Estructura del proyecto
+## 🛠️ Requirements
 
-```
-.
-├── src
-│   ├── server.ts        # Arranque del servidor
-│   ├── api.ts           # Configuración de Express
-│   ├── routes/          # Rutas HTTP
-│   ├── controllers/     # Lógica de negocio
-│   ├── middlewares/     # Auth, errores, validación
-│   ├── config/          # Env, logger, JWT
-│   ├── utils/           # AppError, helpers
-│   └── docs/adr/        # Decisiones de arquitectura
-├── prisma/
-│   ├── schema.prisma
-│   └── seed.ts
-├── docker-compose*.yml
-├── Dockerfile
-├── package.json
-└── README.md
-```
+To run the demo, the following tools are required:
+
+- **Git**
+- **Docker** (Docker Desktop or Docker Engine with Docker Compose)
+- **Make** (optional, recommended for convenience)
+
+No local installation of Node.js, PostgreSQL or Redis is required.
 
 ---
 
-## 🔁 Flujo general de la aplicación (simplificado)
+## 📥 Getting the Project
 
-1. **Cliente** realiza una petición HTTP
-2. **API (Express)** recibe la petición
-3. Middlewares validan:
-
-   * datos (Zod)
-   * autenticación (JWT)
-4. **Controlador** ejecuta la lógica
-5. Acceso a:
-
-   * **PostgreSQL** (Prisma)
-   * **Redis** (caché / tokens)
-6. Respuesta HTTP al cliente
-
-> No se expone la base de datos ni Redis directamente al exterior.
-
----
-
-## ⚙️ Configuración por entornos
-
-El proyecto soporta **tres entornos claramente separados**:
-
-| Entorno     | Uso               | Características                      |
-| ----------- | ----------------- | ------------------------------------ |
-| Development | Desarrollo local  | Hot reload, datos persistentes       |
-| Test        | Tests automáticos | BD efímera                           |
-| Production  | Despliegue        | Build compilado + datos persistentes |
-
-Cada entorno tiene su propio `.env`.
-
----
-
-## 🧪 Variables de entorno (ejemplo)
-
-### Desarrollo (`.env.development`)
-
-```env
-NODE_ENV=development
-PORT=3000
-CORS_ORIGIN=http://localhost:5173
-
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/microblog_dev
-REDIS_URL=redis://127.0.0.1:6379
-
-JWT_ACCESS_SECRET=dev_access_secret
-JWT_REFRESH_SECRET=dev_refresh_secret
-```
-
-### Test (`.env.test`)
-
-```env
-NODE_ENV=test
-PORT=3001
-
-DATABASE_URL=postgresql://postgres:postgres@postgres-test:5432/microblog_test
-REDIS_URL=redis://redis-test:6379
-
-JWT_ACCESS_SECRET=test_secret
-JWT_REFRESH_SECRET=test_secret
-```
-
----
-
-## 🐳 Contenerización con Docker
-
-### Servicios principales
-
-* `api` → servidor Node.js
-* `postgres` → base de datos
-* `redis` → caché
-* Volúmenes persistentes en dev/prod
-* Base de datos **efímera en test**
-
-### Arrancar en desarrollo (Docker)
+Clone the repository and access the project folder:
 
 ```bash
-docker compose up --build
+git clone https://github.com/apiproject-red-social/proyecto-API-Red-Social
+cd proyecto-API-Red-Social
 ```
 
-La API queda accesible en:
+---
+
+## ⚙️ Environment Variables (Optional)
+
+The demo environment **does not require** a `.env` file to run.
+
+All required variables have **safe default values** defined directly in the Docker Compose configuration.
+
+Optionally, a `.env` file can be created from the example to customize values such as the exposed port or secrets:
+
+```bash
+cp .env.example .env
+```
+
+If no `.env` file is provided, the application will run using default values (including port `3000`).
+
+---
+
+## 🚀 Running the Demo
+
+### Using the Makefile (recommended)
+
+The simplest way to start the demo is:
+
+```bash
+make demo
+```
+
+This command will:
+
+- Build the production-ready Docker image
+- Start the API, PostgreSQL and Redis containers
+- Initialize the database schema
+- Load demo data automatically
+
+By default, the application will be available at:
 
 ```
 http://localhost:3000
@@ -180,81 +94,69 @@ http://localhost:3000
 
 ---
 
-## 🧪 Tests
+### Without Makefile (manual Docker command)
 
-### Local
-
-```bash
-npm test
-```
-
-### En Docker (entorno aislado)
+If you prefer not to use `make`, the demo can be started directly with Docker Compose:
 
 ```bash
-make test-docker
+docker compose -f compose.demo.yml up --build
 ```
-
-* Usa base de datos temporal
-* No afecta a desarrollo ni producción
 
 ---
 
-## 📘 Documentación API (Swagger)
+## 🧪 How to Try the Demo
 
-Disponible en:
+Once the services are running:
 
-```
-http://localhost:3000/api-docs
-```
+- **Web client (embedded demo UI):**
 
-Permite:
+  ```
+  http://localhost:3000
+  ```
 
-* ver endpoints
-* probar peticiones
-* revisar modelos y respuestas
+- **API documentation (Swagger):**
 
----
+  ```
+  http://localhost:3000/api-docs
+  ```
 
-## 🏛️ Decisiones de arquitectura (ADR)
-
-Todas las decisiones técnicas están documentadas en:
-
-```
-src/docs/adr/
-```
-
-Ejemplos:
-
-* Uso de PostgreSQL frente a NoSQL
-* Prisma como ORM
-* Redis para caché y tokens
-* Docker para aislamiento por entorno
+The embedded client allows basic interaction with the system (authentication, posting, liking and commenting) without external tools.
+Swagger can be used to inspect and manually test all API endpoints.
 
 ---
 
-## 📌 Estado actual
+## 🧰 Development & Tooling Stack (Overview)
 
-### Implementado
+This project uses a modern backend stack and development workflow, including:
 
-* API REST funcional
-* PostgreSQL + Prisma
-* Redis
-* JWT
-* Docker (dev / test / prod)
-* Testing automatizado
-* CI básico
+- **TypeScript** (strict mode)
+- **Express**
+- **Prisma ORM** with PostgreSQL
+- **Redis**
+- **Docker & Docker Compose**
+- **Vitest** and **Supertest** for testing
+- **Test coverage** reporting
+- **GitHub Actions** for CI
+- **ESLint** for static analysis
+- **Commitlint** and **Husky** for commit quality enforcement
 
-### Fuera de alcance (intencionado)
-
-* Microservicios
-* Orquestadores complejos
-* Mensajería distribuida
-
-> El objetivo es **claridad arquitectónica**, no complejidad innecesaria.
+These tools support code quality, consistency, and automated validation, while keeping the demo setup simple.
 
 ---
 
-## 📄 Licencia
+## 🌍 Other Environments (Brief)
+
+In addition to the demo environment, the project also includes configurations for:
+
+- **Development** (hot reload, local iteration)
+- **Testing** (isolated containers, ephemeral database)
+- **Production** (persistent data and externalized configuration)
+
+These environments are out of scope for this demo guide and are documented separately.
+
+---
+
+## 📄 License
 
 MIT License
-Uso académico y educativo permitido.
+Academic and educational use permitted.

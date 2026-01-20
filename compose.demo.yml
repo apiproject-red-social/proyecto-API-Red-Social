@@ -5,8 +5,6 @@ services:
       dockerfile: docker/Dockerfile.prod
     image: compose-demo-api
     container_name: demo-api-1
-    env_file:
-      - ./.env
     ports:
       - ${PORT_API:-3000}:3000
     environment:
